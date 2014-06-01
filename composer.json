@@ -1,7 +1,7 @@
 {
     "name": "crossjoin/browscap",
     "type": "library",
-    "description": "Crossjoin\Browscap allows to check for browser settings based on the user agent string, using the data from Browscap",
+    "description": "Standalone Browscap parser that allows to check for browser settings based on the user agent string (replacement for the PHP native function get_browser()).",
     "keywords": ["get_browser", "browser", "browscap", "client", "detection", "capabilities", "user agent"],
     "homepage": "https://github.com/crossjoin/Browscap",
     "license": "MIT",
