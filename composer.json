@@ -1,0 +1,26 @@
+{
+    "name": "crossjoin/browscap",
+    "type": "library",
+    "description": "Replacement for PHP's native get_browser() function, with low memory requirements.",
+    "keywords": ["get_browser", "browser", "browscap", "client", "detection", "capabilities", "user agent"],
+    "homepage": "https://github.com/crossjoin/browscap",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christoph Ziegenberg",
+            "email": "christoph@ziegenberg.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/crossjoin/browscap/issues",
+        "source": "https://github.com/crossjoin/browscap"
+    },
+    "require": {
+        "php": ">=5.5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crossjoin": "src/"
+        }
+    }
+}
