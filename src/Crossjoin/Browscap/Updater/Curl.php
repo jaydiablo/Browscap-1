@@ -48,15 +48,13 @@ extends AbstractUpdaterRemote
      */
     protected $updateMethod = 'cURL';
 
-    /**
-     * Options for the updater. The array should be overwritten,
-     * containing all options as keys, set to the default value.
-     *
-     * @var array
-     */
-    protected $options = array(
-        'ConnectTimeout' => 5,
-    );
+    public function __construct($options = null)
+    {
+        parent::__construct($options);
+
+        // add additional options
+        $this->options['ConnectTimeout'] = 5;
+    }
 
     /**
      * Gets the data from a given URL (or false on failure)

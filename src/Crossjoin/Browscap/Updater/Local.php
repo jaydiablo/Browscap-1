@@ -49,15 +49,13 @@ extends AbstractUpdater
      */
     protected $updateMethod = 'local';
 
-    /**
-     * Options for the updater. The array should be overwritten,
-     * containing all options as keys, set to the default value.
-     *
-     * @var array
-     */
-    protected $options = array(
-        'LocalFile' => null,
-    );
+    public function __construct($options = null)
+    {
+        parent::__construct($options);
+
+        // add additional options
+        $this->options['LocalFile'] = null;
+    }
 
     /**
      * Gets the current browscap version (time stamp)

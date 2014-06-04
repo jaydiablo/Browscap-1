@@ -50,15 +50,6 @@ extends AbstractUpdaterRemote
      */
     protected $updateMethod = 'URL-wrapper';
 
-    /**
-     * Options for the updater. The array should be overwritten,
-     * containing all options as keys, set to the default value.
-     *
-     * @var array
-     */
-    protected $options = array(
-    );
-
     public function __construct($options = null)
     {
         parent::__construct($options);
