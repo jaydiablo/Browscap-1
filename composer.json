@@ -20,7 +20,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Crossjoin\\Browscap\\": "src/crossjoin/browscap/"
+            "Crossjoin\\Browscap\\": "src/Crossjoin/Browscap/"
         }
     }
 }
