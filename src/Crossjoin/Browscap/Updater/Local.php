@@ -87,7 +87,7 @@ extends AbstractUpdater
     /**
      * Gets the browscap data of the used source type
      *
-     * @return string
+     * @return string|boolean
      */
     public function getBrowscapSource()
     {
