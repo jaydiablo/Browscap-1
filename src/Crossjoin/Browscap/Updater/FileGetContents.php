@@ -67,6 +67,72 @@ extends AbstractUpdaterRemote
      */
     protected function getRemoteData($url)
     {
-        return file_get_contents($url);
+        $context = $this->getStreamContext();
+        return file_get_contents($url, false, $context);
+    }
+
+    protected function getStreamContext()
+    {
+        // set basic stream context configuration
+        $config = array(
+            'http' => array(
+                'user_agent'    => $this->getUserAgent(),
+                'ignore_errors' => true,
+            )
+        );
+
+        // check and set proxy settings
+        $proxy_host = $this->getOption('ProxyHost');
+        if ($proxy_host !== null) {
+            // check for supported protocol
+            $proxy_protocol = $this->getOption('ProxyProtocol');
+            if ($proxy_protocol !== null) {
+                if (!in_array($proxy_protocol, array(self::PROXY_PROTOCOL_HTTP, self::PROXY_PROTOCOL_HTTPS))) {
+                    throw new \RuntimeException("Invalid/unsupported value '$proxy_protocol' for option 'ProxyProtocol'.");
+                }
+            } else {
+                $proxy_protocol = self::PROXY_PROTOCOL_HTTP;
+            }
+
+            // prepare port for the proxy server address
+            $proxy_port = $this->getOption('ProxyPort');
+            if ($proxy_port !== null) {
+                $proxy_port = ":" . $proxy_port;
+            } else {
+                $proxy_port = "";
+            }
+
+            // check auth settings
+            $proxy_auth = $this->getOption('ProxyAuth');
+            if ($proxy_auth !== null) {
+                if (!in_array($proxy_auth, array(self::PROXY_AUTH_BASIC))) {
+                    throw new \RuntimeException("Invalid/unsupported value '$proxy_auth' for option 'ProxyAuth'.");
+                }
+            } else {
+                $proxy_auth = self::PROXY_AUTH_BASIC;
+            }
+
+            // set proxy server address
+            $config['http']['proxy'] = 'tcp://' . $proxy_host . $proxy_port;
+            // full uri required by some proxy servers
+            $config['http']['request_fulluri'] = true;
+
+            // add authorization header if required
+            $proxy_user = $this->getOption('ProxyUser');
+            if ($proxy_user !== null) {
+                $proxy_password = $this->getOption('ProxyPassword');
+                if ($proxy_password === null) {
+                    $proxy_password = '';
+                }
+                $auth = base64_encode($proxy_user . ":" . $proxy_password);
+                $config['http']['header'] = "Proxy-Authorization: Basic " . $auth;
+            }
+
+            if ($proxy_protocol === self::PROXY_PROTOCOL_HTTPS) {
+                // @todo Add SSL context options
+                // @see  http://www.php.net/manual/en/context.ssl.php
+            }
+        }
+        return stream_context_create($config);
     }
 }

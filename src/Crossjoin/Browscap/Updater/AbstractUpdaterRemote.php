@@ -40,6 +40,12 @@ namespace Crossjoin\Browscap\Updater;
 abstract class AbstractUpdaterRemote
 extends AbstractUpdater
 {
+    const PROXY_PROTOCOL_HTTP  = 'http';
+    const PROXY_PROTOCOL_HTTPS = 'https';
+
+    const PROXY_AUTH_BASIC     = 'basic';
+    const PROXY_AUTH_NTLM      = 'ntlm';
+
     /**
      * The URL to get the current Browscap data (in the configured format)
      *
@@ -73,6 +79,14 @@ extends AbstractUpdater
     public function __construct($options = null)
     {
         parent::__construct($options);
+
+        // add additional options
+        $this->options['ProxyProtocol'] = null;
+        $this->options['ProxyHost']     = null;
+        $this->options['ProxyPort']     = null;
+        $this->options['ProxyAuth']     = null;
+        $this->options['ProxyUser']     = null;
+        $this->options['ProxyPassword'] = null;
     }
 
     /**

@@ -70,6 +70,48 @@ extends AbstractUpdaterRemote
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->getOption('ConnectTimeout'));
         curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
 
+        // check and set proxy settings
+        $proxy_host = $this->getOption('ProxyHost');
+        if ($proxy_host !== null) {
+            // check for supported protocol
+            $proxy_protocol = $this->getOption('ProxyProtocol');
+            if ($proxy_protocol !== null) {
+                if (!in_array($proxy_protocol, array(self::PROXY_PROTOCOL_HTTP, self::PROXY_PROTOCOL_HTTPS))) {
+                    throw new \RuntimeException("Invalid/unsupported value '$proxy_protocol' for option 'ProxyProtocol'.");
+                }
+            } else {
+                $proxy_protocol = self::PROXY_PROTOCOL_HTTP;
+            }
+
+            $proxy_port = $this->getOption('ProxyPort');
+
+            // check auth settings
+            $proxy_auth = $this->getOption('ProxyAuth');
+            if ($proxy_auth !== null) {
+                if (!in_array($proxy_auth, array(self::PROXY_AUTH_BASIC, self::PROXY_AUTH_NTLM))) {
+                    throw new \RuntimeException("Invalid/unsupported value '$proxy_auth' for option 'ProxyAuth'.");
+                }
+            } else {
+                $proxy_auth = self::PROXY_AUTH_BASIC;
+            }
+            $proxy_user     = $this->getOption('ProxyUser');
+            $proxy_password = $this->getOption('ProxyPassword');
+
+            // set basic proxy options
+            curl_setopt($ch, CURLOPT_PROXY, $proxy_protocol . "://" . $proxy_host);
+            if ($proxy_port !== null) {
+                curl_setopt($ch, CURLOPT_PROXYPORT, $proxy_port);
+            }
+
+            // set proxy auth options
+            if ($proxy_user !== null) {
+                if ($proxy_auth === self::PROXY_AUTH_NTLM) {
+                    curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_NTLM);
+                }
+                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_user . ":" . $proxy_password);
+            }
+        }
+
         $response = curl_exec($ch);
 
         curl_close($ch);

@@ -48,6 +48,32 @@ $updater = new \Crossjoin\Browscap\Updater\Local();
 $updater->setOption('LocalFile', __DIR__ . DIRECTORY_SEPARATOR . 'browscap.ini');
 \Crossjoin\Browscap\Browscap::setUpdater($updater);
 
+// set HTTP proxy server (without authentication)
+//$updater->setOptions(array(
+//    'ProxyProtocol' => \Crossjoin\Browscap\Updater\AbstractUpdaterRemote::PROXY_PROTOCOL_HTTP,
+//    'ProxyHost'     => '79.143.82.242',
+//    'ProxyPort'     => '8080',
+//));
+
+// set HTTPS proxy server (with HTTP Basic authentication, the default mode - NOT TESTED YET!)
+//$updater->setOptions(array(
+//    'ProxyProtocol' => \Crossjoin\Browscap\Updater\AbstractUpdaterRemote::PROXY_PROTOCOL_HTTPS,
+//    'ProxyHost'     => '23.23.74.33',
+//    'ProxyPort'     => '80',
+//    'ProxyUser'     => 'user',
+//    'ProxyPassword' => 'p4ssw0rd',
+//));
+
+// set HTTPS proxy server (with NTLM authentication, for cURL updater only - NOT TESTED YET!)
+//$updater->setOptions(array(
+//    'ProxyProtocol' => \Crossjoin\Browscap\Updater\AbstractUpdaterRemote::PROXY_PROTOCOL_HTTPS,
+//    'ProxyHost'     => '23.23.74.33',
+//    'ProxyPort'     => '80',
+//    'ProxyAuth'     => \Crossjoin\Browscap\Updater\AbstractUpdaterRemote::PROXY_AUTH_NTLM,
+//    'ProxyUser'     => 'user',
+//    'ProxyPassword' => 'p4ssw0rd',
+//));
+
 // set an own parser implementation that extends \Crossjoin\Browscap\Parser\AbstractParser 
 // (also for other formats than INI)
 //$parser = new \My\Browscap\Parser\Ini();
@@ -78,7 +104,6 @@ This is the result, published as a separate project as it's not compatible to Br
 Things to do...
 --------------
 - Update via fsockopen isn't possible (possible in [Browscap-PHP](https://github.com/browscap/browscap-php))
-- Proxy cannot be set for the update (possible in [Browscap-PHP](https://github.com/browscap/browscap-php))
 
 
 Issues and feature requests
