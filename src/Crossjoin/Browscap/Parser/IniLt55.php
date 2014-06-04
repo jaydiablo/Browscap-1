@@ -166,31 +166,48 @@ extends AbstractParser
 
                     // get content
                     $sourcecontent = $updater->getBrowscapSource();
-
-                    // update internal version cache first,
-                    // to get the correct version for the next cache file
-                    if (isset($sourceversion)) {
-                        self::$version = (int)$sourceversion;
-                    } else {
-                        $key = $this->pregQuote(self::BROWSCAP_VERSION_KEY);
-                        if (preg_match("/\.*[" . $key . "\][^[]*Version=(\d+)\D.*/", $sourcecontent, $matches)) {
-                            if (isset($matches[1])) {
-                                self::$version = (int)$matches[1];
-                            }
+                    if (!empty($sourcecontent)) {
+                        // update internal version cache first,
+                        // to get the correct version for the next cache file
+                        if (isset($sourceversion)) {
+                            self::$version = (int)$sourceversion;
                         } else {
-                            throw new \Exception("Problem parsing the INI file.");
+                            $key = $this->pregQuote(self::BROWSCAP_VERSION_KEY);
+                            if (preg_match("/\.*[" . $key . "\][^[]*Version=(\d+)\D.*/", $sourcecontent, $matches)) {
+                                if (isset($matches[1])) {
+                                    self::$version = (int)$matches[1];
+                                }
+                            } else {
+                                // ignore the error if...
+                                // - we have old source data we can work with
+                                // - and the data are loaded from a remote source
+                                if ($readable && $updater instanceof \Crossjoin\Browscap\Updater\AbstractUpdaterRemote) {
+                                    touch($path);
+                                } else {
+                                    throw new \RuntimeException("Problem parsing the INI file.");
+                                }
+                            }
+                        }
+
+                        // create cache file for the new version
+                        self::getCache()->set('browscap.ini', $sourcecontent, true);
+                        unset($sourcecontent);
+
+                        // update cached version
+                        self::getCache()->set('browscap.version', self::$version, false);
+
+                        // reset cached ini data
+                        $this->resetCachedData();
+                    } else {
+                        // ignore the error if...
+                        // - we have old source data we can work with
+                        // - and the data are loaded from a remote source
+                        if ($readable && $updater instanceof \Crossjoin\Browscap\Updater\AbstractUpdaterRemote) {
+                            touch($path);
+                        } else {
+                            throw new \RuntimeException("Error loading browscap source.");
                         }
                     }
-
-                    // create cache file for the new version
-                    self::getCache()->set('browscap.ini', $sourcecontent, true);
-                    unset($sourcecontent);
-
-                    // update cached version
-                    self::getCache()->set('browscap.version', self::$version, false);
-
-                    // reset cached ini data
-                    $this->resetCachedData();
                 } else {
                     if ($readable) {
                         touch($path);
