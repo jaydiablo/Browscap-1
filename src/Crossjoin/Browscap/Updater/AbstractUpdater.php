@@ -73,9 +73,7 @@ abstract class AbstractUpdater
     {
         if ($options !== null) {
             if (is_array($options)) {
-                foreach ($options as $key => $value) {
-                    $this->setOption($key, $value);
-                }
+                $this->setOptions($options);
             } else {
                 throw new \InvalidArgumentException("Invalid value for 'options', array expected.");
             }
@@ -112,6 +110,20 @@ abstract class AbstractUpdater
     public function getInterval()
     {
         return $this->interval;
+    }
+
+    /**
+     * Sets multiple updater options at once
+     *
+     * @param array $options
+     * @return \Crossjoin\Browscap\Updater\AbstractUpdater
+     */
+    public function setOptions(array $options)
+    {
+        foreach ($options as $option_key => $option_value) {
+            $this->setOption($option_key, $option_value);
+        }
+        return $this;
     }
 
     /**
