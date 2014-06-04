@@ -124,7 +124,7 @@ abstract class AbstractUpdater
      */
     public function setOption($key, $value)
     {
-        if (isset($this->options[$key])) {
+        if (array_key_exists($key, $this->options)) {
             $this->options[$key] = $value;
         } else {
             throw new \InvalidArgumentException("Invalid option key '" . (string)$key . "'.");
