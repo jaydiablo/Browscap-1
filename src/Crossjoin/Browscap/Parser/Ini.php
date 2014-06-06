@@ -67,24 +67,29 @@ extends IniLt55
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {
-                    $found = false;
-                    while (($buffer = fgets($handle)) !== false) {
-                        $tmp_buffer = substr($buffer, 0, 32);
-                        if ($tmp_buffer === $tmp_start) {
-                            // get length of the pattern
-                            $len = (int)strstr(substr($buffer, 33, 4), ' ', true);
+                    try {
+                        $found = false;
+                        while (($buffer = fgets($handle)) !== false) {
+                            $tmp_buffer = substr($buffer, 0, 32);
+                            if ($tmp_buffer === $tmp_start) {
+                                // get length of the pattern
+                                $len = (int)strstr(substr($buffer, 33, 4), ' ', true);
 
-                            // the user agent must be longer than the pattern without place holders
-                            if ($len <= $length) {
-                                list(,,$patterns) = explode(" ", $buffer, 3);
-                                yield trim($patterns);
+                                // the user agent must be longer than the pattern without place holders
+                                if ($len <= $length) {
+                                    list(,,$patterns) = explode(" ", $buffer, 3);
+                                    yield trim($patterns);
+                                }
+                                $found = true;
+                            } elseif ($found === true) {
+                                break;
                             }
-                            $found = true;
-                        } elseif ($found === true) {
-                            break;
                         }
+                    } finally {
+                        // always close the opened file, also when the Generator is
+                        // used in a loop that is ended with a break
+                        fclose($handle);
                     }
-                    fclose($handle);
                 }
             }
         }
