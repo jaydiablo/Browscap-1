@@ -165,7 +165,13 @@ extends AbstractParser
                     }
 
                     // get content
-                    $sourcecontent = $updater->getBrowscapSource();
+                    try {
+                        $sourcecontent   = $updater->getBrowscapSource();
+                        $sourceexception = null;
+                    } catch (\Exception $e) {
+                        $sourcecontent   = null;
+                        $sourceexception = $e;
+                    }
                     if (!empty($sourcecontent)) {
                         // update internal version cache first,
                         // to get the correct version for the next cache file
@@ -205,7 +211,7 @@ extends AbstractParser
                         if ($readable && $updater instanceof \Crossjoin\Browscap\Updater\AbstractUpdaterRemote) {
                             touch($path);
                         } else {
-                            throw new \RuntimeException("Error loading browscap source.");
+                            throw new \RuntimeException("Error loading browscap source.", 0, $sourceexception);
                         }
                     }
                 } else {

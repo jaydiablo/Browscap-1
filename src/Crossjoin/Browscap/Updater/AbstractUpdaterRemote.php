@@ -168,6 +168,42 @@ extends AbstractUpdater
     }
 
     /**
+     * Gets the exception to throw if the given HTTP status code is an error code (4xx or 5xx)
+     *
+     * @param int $http_code
+     * @return \RuntimeException|null
+     */
+    protected function getHttpErrorException($http_code)
+    {
+        $http_code = (int)$http_code;
+
+        if ($http_code >= 400) {
+            switch ($http_code) {
+                case 401:
+                    return new \RuntimeException("HTTP client error 401: Unauthorized");
+                case 403:
+                    return new \RuntimeException("HTTP client error 403: Forbidden");
+                case 404:
+                    // wrong browscap source url
+                    return new \RuntimeException("HTTP client error 404: Not Found");
+                case 429:
+                    // rate limit has been exceeded
+                    return new \RuntimeException("HTTP client error 429: Too many request");
+                case 500:
+                    return new \RuntimeException("HTTP server error 500: Internal Server Error");
+                default:
+                    if ($http_code >= 500) {
+                        return new \RuntimeException("HTTP server error $http_code");
+                    } else {
+                        return new \RuntimeException("HTTP client error $http_code");
+                    }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Gets the data from a given URL (or false on failure)
      *
      * @param string $url

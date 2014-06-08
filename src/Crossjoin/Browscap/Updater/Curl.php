@@ -61,6 +61,7 @@ extends AbstractUpdaterRemote
      *
      * @param string $url
      * @return string|boolean
+     * @throws \RuntimeException
      */
     protected function getRemoteData($url)
     {
@@ -112,9 +113,16 @@ extends AbstractUpdaterRemote
             }
         }
 
-        $response = curl_exec($ch);
+        $response  = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
+
+        // check for HTTP error
+        $http_exception = $this->getHttpErrorException($http_code);
+        if ($http_exception !== null) {
+            throw $http_exception;
+        }
 
         return $response;
     }
