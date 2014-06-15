@@ -49,7 +49,7 @@ class FactoryUpdater
     {
         if (function_exists('curl_init')) {
             return new Curl();
-        } elseif ((bool)(int)ini_get('allow_url_fopen') === false) {
+        } elseif ((bool)(int)ini_get('allow_url_fopen') !== false) {
             return new FileGetContents();
         }
         return null;
