@@ -120,8 +120,11 @@ extends AbstractParser
 
     /**
      * Checks if the surce needs to be updated and processes the update
+     *
+     * @param boolean $forceUpdate
+     * @throws \RuntimeException
      */
-    public function update()
+    public function update($forceUpdate = false)
     {
         // get updater
         $updater = \Crossjoin\Browscap\Browscap::getUpdater();
@@ -129,14 +132,18 @@ extends AbstractParser
         // check if an updater has been set - if not, nothing will be updated
         if ($updater !== null && ($updater instanceof \Crossjoin\Browscap\Updater\None) === false) {
             // do we have to check for a new update?
-            $path     = self::getCache()->getFileName('browscap.ini', true);
-            $readable = is_readable($path);
-            if ($readable) {
-                $localts = filemtime($path);
-                $update  = ((time() - $localts) >= $updater->getInterval());
-            } else {
-                $localts = 0;
+            if ($forceUpdate) {
                 $update  = true;
+            } else {
+                $path     = self::getCache()->getFileName('browscap.ini', true);
+                $readable = is_readable($path);
+                if ($readable) {
+                    $localts = filemtime($path);
+                    $update  = ((time() - $localts) >= $updater->getInterval());
+                } else {
+                    $localts = 0;
+                    $update  = true;
+                }
             }
 
             if ($update) {
@@ -220,6 +227,8 @@ extends AbstractParser
                     }
                 }
             }
+        } elseif ($forceUpdate === true) {
+            throw new \RuntimeException("Required updater missin for forced update.");
         }
     }
 

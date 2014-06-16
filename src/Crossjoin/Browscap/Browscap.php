@@ -195,4 +195,14 @@ class Browscap
         }
         return self::$updater;
     }
+
+    /**
+     * Triggers an update check (with the option to force an update).
+     *
+     * @param boolean $forceUpdate
+     */
+    public static function update($forceUpdate = false)
+    {
+        self::getParser()->update($forceUpdate);
+    }
 }
