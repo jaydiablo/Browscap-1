@@ -12,6 +12,11 @@ Although PHP has the native [`get_browser()`](http://php.net/get_browser) functi
 - The PHP function requires to set the path of the browscap.ini file in the php.ini directive [`browscap`](http://www.php.net/manual/en/misc.configuration.php#ini.browscap), which is flagged as `PHP_INI_SYSTEM` (so it can only be set in php.ini or httpd.conf, which isn't allowed in many cases, e.g. in shared hosting environments).
 - It's much faster than the PHP function (between 20-50 times, depending on the PHP version, the searched user agent and other factors)
 - It includes automatic updates of the Browscap source
+
+Compared to other PHP Browscap parsers, this implementation offers the following advantages
+- It's very fast due to optimized caching of the Browscap data
+- It checks the PHP version and uses special PHP 5.5 features for best performance
+- It has a very low memory consuption (for parsing and generating cache data)
 - All components are extendible - use your own parser, updater, formatter or cache functionality
 
 
