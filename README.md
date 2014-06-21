@@ -46,6 +46,8 @@ $browscap = new \Crossjoin\Browscap\Browscap();
 $settings = $browscap->getBrowser()->getData();
 ```
 
+You can also install it manually and use a [`PSR-0-compliant`](http://www.php-fig.org/psr/psr-0/) autoloader (e.g. from the [`Zend Framwork`](http://framework.zend.com/manual/2.3/en/modules/zend.loader.standard-autoloader.html) or a [`standalone class`](https://gist.github.com/lisachenko/1335891)).
+
 
 Advanced example
 --------------
@@ -128,8 +130,8 @@ Things to do...
 Issues and feature requests
 ---------------------------
 
-Please report your issues and ask for new features on the GitHub Issue Tracker:
+Please report your issues and ask for new features on the GitHub Issue Tracker: 
 https://github.com/crossjoin/browscap/issues
 
-Please report incorrectly identified User Agents and browser detect in the browscap.ini file to Browscap:
+Please report incorrectly identified User Agents and browser detect in the browscap.ini file to Browscap: 
 https://github.com/browscap/browscap/issues
