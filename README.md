@@ -22,10 +22,26 @@ Requirements
 - For automatic updates: cURL extension or `allow_url_fopen` enabled in php.ini, 
 
 
+Package installation
+--------------
+Crossjoin\Browscap is provided as a Composer package which can be installed by adding the package to your composer.json file:
+```
+{
+    "require": {
+        "crossjoin/browscap": "dev-master"
+    }
+}
+```
+
+
 Simple example
 --------------
 ```
 <?php
+// include Composer autoloader
+require_once '../vendor/autoload.php';
+
+// get browser details
 $browscap = new \Crossjoin\Browscap\Browscap();
 $settings = $browscap->getBrowser()->getData();
 ```
@@ -35,6 +51,9 @@ Advanced example
 --------------
 ```
 <?php
+// include Composer autoloader
+require_once '../vendor/autoload.php';
+
 // set an own cache directory (otherwise the system temp directory is used)
 \Crossjoin\Browscap\Cache\File::setCacheDirectory(__DIR__ . DIRECTORY_SEPARATOR . 'tmp');
 
@@ -112,5 +131,5 @@ Issues and feature requests
 Please report your issues and ask for new features on the GitHub Issue Tracker:
 https://github.com/crossjoin/browscap/issues
 
-Please report incorrectly identified User Agents and browser detect in the browscap.ini file to Browscap: 
+Please report incorrectly identified User Agents and browser detect in the browscap.ini file to Browscap:
 https://github.com/browscap/browscap/issues
