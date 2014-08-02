@@ -51,17 +51,27 @@ extends IniLt55
      */
     protected function getPatterns($user_agent)
     {
-        $start  = $this->getPatternStart($user_agent);
+        $starts = $this->getPatternStart($user_agent, true);
         $length = strlen($user_agent);
-        $subkey = $this->getPatternCacheSubkey($start);
 
-        if (!self::getCache()->exists('browscap.patterns.' . $subkey)) {
+        // check if pattern files need to be created
+        $pattern_file_missing = false;
+        foreach ($starts as $start) {
+            $subkey = $this->getPatternCacheSubkey($start);
+            if (!self::getCache()->exists('browscap.patterns.' . $subkey)) {
+                $pattern_file_missing = true;
+                break;
+            }
+        }
+        if ($pattern_file_missing === true) {
             $this->createPatterns();
         }
 
-        // get patterns, first for the given browser and if that is not found,
-        // for the default browser (with a special key)
-        foreach (array($start, str_repeat('z', 32)) as $tmp_start) {
+        // add special key to fall back to the default browser
+        $starts[] = str_repeat('z', 32);
+
+        // get patterns for the given start hashes
+        foreach ($starts as $tmp_start) {
             $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
             $file       = self::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
             if (file_exists($file)) {

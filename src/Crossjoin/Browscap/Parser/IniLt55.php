@@ -246,18 +246,28 @@ extends AbstractParser
      */
     protected function getPatterns($user_agent)
     {
-        $start  = $this->getPatternStart($user_agent);
+        $starts = $this->getPatternStart($user_agent, true);
         $length = strlen($user_agent);
-        $subkey = $this->getPatternCacheSubkey($start);
 
-        if (!self::getCache()->exists('browscap.patterns.' . $subkey)) {
+        // check if pattern files need to be created
+        $pattern_file_missing = false;
+        foreach ($starts as $start) {
+            $subkey = $this->getPatternCacheSubkey($start);
+            if (!self::getCache()->exists('browscap.patterns.' . $subkey)) {
+                $pattern_file_missing = true;
+                break;
+            }
+        }
+        if ($pattern_file_missing === true) {
             $this->createPatterns();
         }
 
-        // get patterns, first for the given browser and if that is not found,
-        // for the default browser (with a special key)
+        // add special key to fall back to the default browser
+        $starts[] = str_repeat('z', 32);
+
+        // get patterns for the given start hashes
         $patternarr = array();
-        foreach (array($start, str_repeat('z', 32)) as $tmp_start) {
+        foreach ($starts as $tmp_start) {
             $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
             $file       = self::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
             if (file_exists($file)) {
@@ -332,7 +342,7 @@ extends AbstractParser
                 krsort($data[$key]);
             }
 
-            // write optimized file (grouped by the first character of the has, generated from the pattern
+            // write optimized file (grouped by the first character of the hash, generated from the pattern
             // start) with multiple patterns joined by tabs. this is to speed up loading of the data (small
             // array with pattern strings instead of an large array with single patterns) and also enables
             // us to search for multiple patterns in one preg_match call for a fast first search
@@ -350,8 +360,17 @@ extends AbstractParser
                     }
                 }
             }
+
+            // write cache files. important: also write empty cache files for
+            // unused patterns, so that the regeneration is not unnecessarily
+            // triggered by the getPatterns() method.
+            $subkeys = array_flip($this->getAllPatternCacheSubkeys());
             foreach ($contents as $subkey => $content) {
                 self::getCache()->set('browscap.patterns.' . $subkey, $content, true);
+                unset($subkeys[$subkey]);
+            }
+            foreach (array_keys($subkeys) as $subkey) {
+                self::getCache()->set('browscap.patterns.' . $subkey, '', true);
             }
         }
     }
@@ -362,8 +381,28 @@ extends AbstractParser
      * @param string $string
      * @return string
      */
-    protected function getPatternCacheSubkey($string) {
+    protected function getPatternCacheSubkey($string)
+    {
         return $string[0] . $string[1];
+    }
+
+    /**
+     * Gets all subkeys for the pattern cache files
+     *
+     * @return array
+     */
+    protected function getAllPatternCacheSubkeys()
+    {
+        $subkeys = array();
+        $chars   = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+
+        foreach ($chars as $char_one) {
+            foreach ($chars as $char_two) {
+                $subkeys[] = $char_one . $char_two;
+            }
+        }
+
+        return $subkeys;
     }
 
     /**
@@ -489,15 +528,40 @@ extends AbstractParser
     }
 
     /**
-     * Gets a hash from the first charcters of a pattern/user agent, that can be used for a fast comparison,
-     * by comparing only the hashes, without having to match the complete pattern against the user agent.
+     * Gets a hash or an array of hashes from the first characters of a pattern/user agent, that can
+     * be used for a fast comparison, by comparing only the hashes, without having to match the
+     * complete pattern against the user agent.
+     *
+     * With the variants options, all variants from the maximum number of pattern characters to one
+     * character will be returned. This is required in some cases, the a placeholder is used very
+     * early in the pattern.
+     *
+     * Example:
+     *
+     * Pattern: "Mozilla/* (Nintendo 3DS; *) Version/*"
+     * User agent: "Mozilla/5.0 (Nintendo 3DS; U; ; en) Version/1.7567.US"
+     *
+     * In this case the has for the pattern is created for "Mozilla/" while the pattern
+     * for the hash for user agent is created for "Mozilla/5.0". The variants option
+     * results in an array with hashes for "Mozilla/5.0", "Mozilla/5.", "Mozilla/5",
+     * "Mozilla/" ... "M", so that the pattern hash is included.
      *
      * @param string $pattern
-     * @return string
+     * @param boolean $variants
+     * @return string|array
      */
-    protected static function getPatternStart($pattern)
+    protected static function getPatternStart($pattern, $variants = false)
     {
-        return md5(preg_replace('/^([^\*\?\s]*)[\*\?\s].*$/', '\\1', substr($pattern, 0, 32)));
+        $string = preg_replace('/^([^\*\?\s]*)[\*\?\s].*$/', '\\1', substr($pattern, 0, 32));
+        if ($variants === true) {
+            $pattern_starts = array();
+            for ($i = strlen($string); $i >= 1; $i--) {
+                $pattern_starts[] = md5(substr($string, 0, $i));
+            }
+            return $pattern_starts;
+        } else {
+            return md5($string);
+        }
     }
 
     /**
