@@ -130,6 +130,7 @@ This is the result, published as a separate project as it's not compatible to Br
 Things to do...
 --------------
 - Update via fsockopen isn't possible (possible in [Browscap-PHP](https://github.com/browscap/browscap-php))
+- Allow to use "full_php_browscap.ini" instead of "php_browscap.ini" (with additional information), as used in issue #5
 
 
 Issues and feature requests
