@@ -97,11 +97,11 @@ class Browscap
 
         // check for update first
         if (mt_rand(1, floor((100 / $this->updateProbability))) === 1) {
-            self::getParser()->update();
+            static::getParser()->update();
         }
 
         // try to get browser data
-        $return = self::getParser()->getBrowser($user_agent);
+        $return = static::getParser()->getBrowser($user_agent);
 
         // if not found, there has to be a problem with the source data,
         // because normally defualt browser data are returned,
@@ -116,7 +116,7 @@ class Browscap
         // if return is still NULL, updates are disabled... in this
         // case we return an empty formatter instance
         if ($return === null) {
-            $return = self::getFormatter();
+            $return = static::getFormatter();
         }
 
         return $return;
@@ -129,7 +129,7 @@ class Browscap
      */
     public static function setFormatter(Formatter\AbstractFormatter $formatter)
     {
-        self::$formatter = $formatter;
+        static::$formatter = $formatter;
     }
 
     /**
@@ -137,10 +137,10 @@ class Browscap
      */
     public static function getFormatter()
     {
-        if (self::$formatter === null) {
-            self::setFormatter(new Formatter\PhpGetBrowser());
+        if (static::$formatter === null) {
+            static::setFormatter(new Formatter\PhpGetBrowser());
         }
-        return self::$formatter;
+        return static::$formatter;
     }
 
     /**
@@ -150,7 +150,7 @@ class Browscap
      */
     public static function setParser(Parser\AbstractParser $parser)
     {
-        self::$parser = $parser;
+        static::$parser = $parser;
     }
 
     /**
@@ -158,16 +158,16 @@ class Browscap
      */
     public static function getParser()
     {
-        if (self::$parser === null) {
+        if (static::$parser === null) {
             // generators are supported from PHP 5.5, so select the correct parser version to use
             // (the version without generators requires about 2-3x the memory and is a bit slower)
             if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
-                self::setParser(new Parser\Ini());
+                static::setParser(new Parser\Ini());
             } else {
-                self::setParser(new Parser\IniLt55());
+                static::setParser(new Parser\IniLt55());
             }
         }
-        return self::$parser;
+        return static::$parser;
     }
 
     /**
@@ -177,7 +177,7 @@ class Browscap
      */
     public static function setUpdater(Updater\AbstractUpdater $updater)
     {
-        self::$updater = $updater;
+        static::$updater = $updater;
     }
 
     /**
@@ -187,13 +187,13 @@ class Browscap
      */
     public static function getUpdater()
     {
-        if (self::$updater === null) {
+        if (static::$updater === null) {
             $updater = Updater\FactoryUpdater::getInstance();
             if ($updater !== null) {
-                self::setUpdater($updater);
+                static::setUpdater($updater);
             }
         }
-        return self::$updater;
+        return static::$updater;
     }
 
     /**
@@ -203,6 +203,6 @@ class Browscap
      */
     public static function update($forceUpdate = false)
     {
-        self::getParser()->update($forceUpdate);
+        static::getParser()->update($forceUpdate);
     }
 }

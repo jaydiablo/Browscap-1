@@ -58,7 +58,7 @@ extends IniLt55
         $pattern_file_missing = false;
         foreach ($starts as $start) {
             $subkey = $this->getPatternCacheSubkey($start);
-            if (!self::getCache()->exists('browscap.patterns.' . $subkey)) {
+            if (!static::getCache()->exists('browscap.patterns.' . $subkey)) {
                 $pattern_file_missing = true;
                 break;
             }
@@ -73,7 +73,7 @@ extends IniLt55
         // get patterns for the given start hashes
         foreach ($starts as $tmp_start) {
             $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
-            $file       = self::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
+            $file       = static::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {

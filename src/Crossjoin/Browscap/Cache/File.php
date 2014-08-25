@@ -122,7 +122,7 @@ extends AbstractCache
      */
     public static function setCacheDirectory($cache_dir)
     {
-        self::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
+        static::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -133,10 +133,10 @@ extends AbstractCache
      */
     public static function getCacheDirectory($with_version = false, $create_dir = false)
     {
-        if (self::$cache_dir === null) {
-            self::setCacheDirectory(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'browscap');
+        if (static::$cache_dir === null) {
+            static::setCacheDirectory(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'browscap');
         }
-        $path = self::$cache_dir;
+        $path = static::$cache_dir;
 
         if ($with_version === true) {
             $path .= DIRECTORY_SEPARATOR . 'browscap_v' . \Crossjoin\Browscap\Browscap::getParser()->getVersion();

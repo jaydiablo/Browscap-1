@@ -69,13 +69,13 @@ extends AbstractParser
      */
     public function getVersion()
     {
-        if (self::$version === null) {
-            $version = self::getCache()->get('browscap.version', false);
+        if (static::$version === null) {
+            $version = static::getCache()->get('browscap.version', false);
             if ($version !== null) {
-                self::$version = (int)$version;
+                static::$version = (int)$version;
             }
         }
-        return self::$version;
+        return static::$version;
     }
 
     /**
@@ -115,7 +115,7 @@ extends AbstractParser
         if (!($cache instanceof \Crossjoin\Browscap\Cache\File)) {
             throw new \InvalidArgumentException("This parser requires a cache instance of '\Crossjoin\Browscap\Cache\File'.");
         }
-        self::$cache = $cache;
+        static::$cache = $cache;
     }
 
     /**
@@ -132,7 +132,7 @@ extends AbstractParser
         // check if an updater has been set - if not, nothing will be updated
         if ($updater !== null && ($updater instanceof \Crossjoin\Browscap\Updater\None) === false) {
             // initialize variables
-            $path     = self::getCache()->getFileName('browscap.ini', true);
+            $path     = static::getCache()->getFileName('browscap.ini', true);
             $readable = is_readable($path);
             $localts  = 0;
 
@@ -186,12 +186,12 @@ extends AbstractParser
                         // update internal version cache first,
                         // to get the correct version for the next cache file
                         if (isset($sourceversion)) {
-                            self::$version = (int)$sourceversion;
+                            static::$version = (int)$sourceversion;
                         } else {
                             $key = $this->pregQuote(self::BROWSCAP_VERSION_KEY);
                             if (preg_match("/\.*[" . $key . "\][^[]*Version=(\d+)\D.*/", $sourcecontent, $matches)) {
                                 if (isset($matches[1])) {
-                                    self::$version = (int)$matches[1];
+                                    static::$version = (int)$matches[1];
                                 }
                             } else {
                                 // ignore the error if...
@@ -206,11 +206,11 @@ extends AbstractParser
                         }
 
                         // create cache file for the new version
-                        self::getCache()->set('browscap.ini', $sourcecontent, true);
+                        static::getCache()->set('browscap.ini', $sourcecontent, true);
                         unset($sourcecontent);
 
                         // update cached version
-                        self::getCache()->set('browscap.version', self::$version, false);
+                        static::getCache()->set('browscap.version', static::$version, false);
 
                         // reset cached ini data
                         $this->resetCachedData();
@@ -253,7 +253,7 @@ extends AbstractParser
         $pattern_file_missing = false;
         foreach ($starts as $start) {
             $subkey = $this->getPatternCacheSubkey($start);
-            if (!self::getCache()->exists('browscap.patterns.' . $subkey)) {
+            if (!static::getCache()->exists('browscap.patterns.' . $subkey)) {
                 $pattern_file_missing = true;
                 break;
             }
@@ -269,7 +269,7 @@ extends AbstractParser
         $patternarr = array();
         foreach ($starts as $tmp_start) {
             $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
-            $file       = self::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
+            $file       = static::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {
@@ -305,7 +305,7 @@ extends AbstractParser
         // get all relevant patterns from the INI file
         // - containing "*" or "?"
         // - not containing "*" or "?", but not having a comment
-        preg_match_all('/(?<=\[)(?:[^\r\n]*[?*][^\r\n]*)(?=\])|(?<=\[)(?:[^\r\n*?]+)(?=\])(?![^\[]*Comment=)/m', self::getContent(), $matches);
+        preg_match_all('/(?<=\[)(?:[^\r\n]*[?*][^\r\n]*)(?=\])|(?<=\[)(?:[^\r\n*?]+)(?=\])(?![^\[]*Comment=)/m', static::getContent(), $matches);
         $matches = $matches[0];
 
         if (count($matches)) {
@@ -366,11 +366,11 @@ extends AbstractParser
             // triggered by the getPatterns() method.
             $subkeys = array_flip($this->getAllPatternCacheSubkeys());
             foreach ($contents as $subkey => $content) {
-                self::getCache()->set('browscap.patterns.' . $subkey, $content, true);
+                static::getCache()->set('browscap.patterns.' . $subkey, $content, true);
                 unset($subkeys[$subkey]);
             }
             foreach (array_keys($subkeys) as $subkey) {
-                self::getCache()->set('browscap.patterns.' . $subkey, '', true);
+                static::getCache()->set('browscap.patterns.' . $subkey, '', true);
             }
         }
     }
@@ -412,7 +412,7 @@ extends AbstractParser
      */
     public static function getContent()
     {
-        return (string)self::getCache()->get('browscap.ini', true);
+        return (string)static::getCache()->get('browscap.ini', true);
     }
 
     /**
@@ -463,12 +463,12 @@ extends AbstractParser
         $patternhash = md5($pattern);
         $subkey      = $this->getIniPartCacheSubkey($patternhash);
 
-        if (!self::getCache()->exists('browscap.iniparts.' . $subkey)) {
+        if (!static::getCache()->exists('browscap.iniparts.' . $subkey)) {
             $this->createIniParts();
         }
 
         $return = array();
-        $file   = self::getCache()->getFileName('browscap.iniparts.' . $subkey);
+        $file   = static::getCache()->getFileName('browscap.iniparts.' . $subkey);
         $handle = fopen($file, "r");
         if ($handle) {
             while (($buffer = fgets($handle)) !== false) {
@@ -513,7 +513,7 @@ extends AbstractParser
             ) . "\n";
         }
         foreach ($contents as $chars => $content) {
-            self::getCache()->set('browscap.iniparts.' . $chars, $content);
+            static::getCache()->set('browscap.iniparts.' . $chars, $content);
         }
     }
 

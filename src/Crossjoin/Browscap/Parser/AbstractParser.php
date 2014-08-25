@@ -96,10 +96,10 @@ abstract class AbstractParser
      */
     public static function getCache()
     {
-        if (self::$cache === null) {
-            self::$cache = new \Crossjoin\Browscap\Cache\File();
+        if (static::$cache === null) {
+            static::$cache = new \Crossjoin\Browscap\Cache\File();
         }
-        return self::$cache;
+        return static::$cache;
     }
 
     /**
@@ -107,7 +107,7 @@ abstract class AbstractParser
      */
     public static function setCache(\Crossjoin\Browscap\Cache\AbstractCache $cache)
     {
-        self::$cache = $cache;
+        static::$cache = $cache;
     }
 
     /**
@@ -122,6 +122,6 @@ abstract class AbstractParser
      */
     public static function resetCachedData()
     {
-        self::$version = null;
+        static::$version = null;
     }
 }
