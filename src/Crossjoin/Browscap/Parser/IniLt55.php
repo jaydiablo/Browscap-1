@@ -558,6 +558,11 @@ extends AbstractParser
             for ($i = strlen($string); $i >= 1; $i--) {
                 $pattern_starts[] = md5(substr($string, 0, $i));
             }
+
+            // Add empty pattern start to include patterns that start with "*",
+            // e.g. "*FAST Enterprise Crawler*"
+            $pattern_starts[] = md5("");
+
             return $pattern_starts;
         } else {
             return md5($string);
