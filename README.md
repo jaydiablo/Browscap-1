@@ -8,7 +8,6 @@ Crossjoin\Browscap allows to check for browser settings based on the user agent 
 (the [Browser Capabilities Project](browscap.org)). 
 
 Although PHP has the native [`get_browser()`](http://php.net/get_browser) function to do this, this implementation offers some advantages:
-
 - The PHP function requires to set the path of the browscap.ini file in the php.ini directive [`browscap`](http://www.php.net/manual/en/misc.configuration.php#ini.browscap), which is flagged as `PHP_INI_SYSTEM` (so it can only be set in php.ini or httpd.conf, which isn't allowed in many cases, e.g. in shared hosting environments).
 - It's much faster than the PHP function (between 20-50 times, depending on the PHP version, the searched user agent and other factors)
 - It includes automatic updates of the Browscap source
@@ -19,10 +18,14 @@ Compared to other PHP Browscap parsers, this implementation offers the following
 - It has a very low memory consuption (for parsing and generating cache data)
 - All components are extendible - use your own parser, updater, formatter or cache functionality
 
+You can also switch the type of dataset to use - smaller, medium (default) or large:
+- The default dataset (containing all known browsers and the default properties)
+- The small dataset (with the most imporant browser only and the default properties)
+- The large dataset (with all known browsers and additional properties) 
 
 Requirements
 --------------
-- PHP 5.3+ (it has been successfully tested with PHP 5.3.28 - PHP 5.6.0beta3, perhaps also older versions still work)
+- PHP 5.3+ (it has been successfully tested with PHP 5.3.28 - PHP 5.6.0, perhaps also older versions still work)
 - PHP 5.5+ recommended (to be able to use generators, which reduces memory consumption a lot)
 - For automatic updates: cURL extension or `allow_url_fopen` enabled in php.ini, 
 
@@ -63,6 +66,13 @@ require_once '../vendor/autoload.php';
 
 // set an own cache directory (otherwise the system temp directory is used)
 \Crossjoin\Browscap\Cache\File::setCacheDirectory(__DIR__ . DIRECTORY_SEPARATOR . 'tmp');
+
+// set the dataset type to use
+// possible values:
+// - \Crossjoin\Browscap\Browscap::DATASET_TYPE_DEFAULT
+// - \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL
+// - \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE
+\Crossjoin\Browscap\Browscap::setDatasetType(\Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL);
 
 // disable automatic updates
 $updater = new \Crossjoin\Browscap\Updater\None();
@@ -130,7 +140,6 @@ This is the result, published as a separate project as it's not compatible to Br
 Things to do...
 --------------
 - Update via fsockopen isn't possible (possible in [Browscap-PHP](https://github.com/browscap/browscap-php))
-- Allow to use "full_php_browscap.ini" instead of "php_browscap.ini" (with additional information), as used in issue #5
 
 
 Issues and feature requests

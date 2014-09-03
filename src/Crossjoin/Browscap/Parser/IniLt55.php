@@ -48,10 +48,27 @@ extends AbstractParser
 
     /**
      * The type to use when downloading the browscap source data
+     * (default version: all browsers, default properties)
      *
      * @var string
      */
     protected $sourceType = 'PHP_BrowscapINI';
+
+    /**
+     * The type to use when downloading the browscap source data
+     * (small version: popular browsers, default properties)
+     *
+     * @var string
+     */
+    protected $sourceTypeSmall = 'Lite_PHP_BrowscapINI';
+
+    /**
+     * The type to use when downloading the browscap source data
+     * (large version: all browsers, extended properties)
+     *
+     * @var string
+     */
+    protected $sourceTypeLarge = 'Full_PHP_BrowscapINI';
 
     /**
      * Number of pattern to combine for a faster regular expression search.
@@ -70,7 +87,8 @@ extends AbstractParser
     public function getVersion()
     {
         if (static::$version === null) {
-            $version = static::getCache()->get('browscap.version', false);
+            $prefix  = static::getCachePrefix();
+            $version = static::getCache()->get("$prefix.version", false);
             if ($version !== null) {
                 static::$version = (int)$version;
             }
@@ -132,7 +150,8 @@ extends AbstractParser
         // check if an updater has been set - if not, nothing will be updated
         if ($updater !== null && ($updater instanceof \Crossjoin\Browscap\Updater\None) === false) {
             // initialize variables
-            $path     = static::getCache()->getFileName('browscap.ini', true);
+            $prefix   = static::getCachePrefix();
+            $path     = static::getCache()->getFileName("$prefix.ini", true);
             $readable = is_readable($path);
             $localts  = 0;
 
@@ -206,11 +225,11 @@ extends AbstractParser
                         }
 
                         // create cache file for the new version
-                        static::getCache()->set('browscap.ini', $sourcecontent, true);
+                        static::getCache()->set("$prefix.ini", $sourcecontent, true);
                         unset($sourcecontent);
 
                         // update cached version
-                        static::getCache()->set('browscap.version', static::$version, false);
+                        static::getCache()->set("$prefix.version", static::$version, false);
 
                         // reset cached ini data
                         $this->resetCachedData();
@@ -248,12 +267,13 @@ extends AbstractParser
     {
         $starts = $this->getPatternStart($user_agent, true);
         $length = strlen($user_agent);
+        $prefix = static::getCachePrefix();
 
         // check if pattern files need to be created
         $pattern_file_missing = false;
         foreach ($starts as $start) {
             $subkey = $this->getPatternCacheSubkey($start);
-            if (!static::getCache()->exists('browscap.patterns.' . $subkey)) {
+            if (!static::getCache()->exists("$prefix.patterns." . $subkey)) {
                 $pattern_file_missing = true;
                 break;
             }
@@ -269,7 +289,7 @@ extends AbstractParser
         $patternarr = array();
         foreach ($starts as $tmp_start) {
             $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
-            $file       = static::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
+            $file       = static::getCache()->getFileName("$prefix.patterns." . $tmp_subkey);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {
@@ -364,13 +384,14 @@ extends AbstractParser
             // write cache files. important: also write empty cache files for
             // unused patterns, so that the regeneration is not unnecessarily
             // triggered by the getPatterns() method.
+            $prefix  = static::getCachePrefix();
             $subkeys = array_flip($this->getAllPatternCacheSubkeys());
             foreach ($contents as $subkey => $content) {
-                static::getCache()->set('browscap.patterns.' . $subkey, $content, true);
+                static::getCache()->set("$prefix.patterns." . $subkey, $content, true);
                 unset($subkeys[$subkey]);
             }
             foreach (array_keys($subkeys) as $subkey) {
-                static::getCache()->set('browscap.patterns.' . $subkey, '', true);
+                static::getCache()->set("$prefix.patterns." . $subkey, '', true);
             }
         }
     }
@@ -412,7 +433,8 @@ extends AbstractParser
      */
     public static function getContent()
     {
-        return (string)static::getCache()->get('browscap.ini', true);
+        $prefix = static::getCachePrefix();
+        return (string)static::getCache()->get("$prefix.ini", true);
     }
 
     /**
@@ -462,13 +484,14 @@ extends AbstractParser
     {
         $patternhash = md5($pattern);
         $subkey      = $this->getIniPartCacheSubkey($patternhash);
+        $prefix      = static::getCachePrefix();
 
-        if (!static::getCache()->exists('browscap.iniparts.' . $subkey)) {
+        if (!static::getCache()->exists("$prefix.iniparts." . $subkey)) {
             $this->createIniParts();
         }
 
         $return = array();
-        $file   = static::getCache()->getFileName('browscap.iniparts.' . $subkey);
+        $file   = static::getCache()->getFileName("$prefix.iniparts." . $subkey);
         $handle = fopen($file, "r");
         if ($handle) {
             while (($buffer = fgets($handle)) !== false) {
@@ -496,6 +519,7 @@ extends AbstractParser
 
         // split the ini file into sections and save the data in one line with a hash of the beloging
         // pattern (filtered in the previous step)
+        $prefix    = static::getCachePrefix();
         $ini_parts = preg_split('/\[[^\r\n]+\]/', $this->getContent());
         $contents  = array();
         foreach ($patternpositions as $position => $pattern) {
@@ -513,7 +537,7 @@ extends AbstractParser
             ) . "\n";
         }
         foreach ($contents as $chars => $content) {
-            static::getCache()->set('browscap.iniparts.' . $chars, $content);
+            static::getCache()->set("$prefix.iniparts." . $chars, $content);
         }
     }
 

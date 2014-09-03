@@ -53,12 +53,13 @@ extends IniLt55
     {
         $starts = $this->getPatternStart($user_agent, true);
         $length = strlen($user_agent);
+        $prefix = static::getCachePrefix();
 
         // check if pattern files need to be created
         $pattern_file_missing = false;
         foreach ($starts as $start) {
             $subkey = $this->getPatternCacheSubkey($start);
-            if (!static::getCache()->exists('browscap.patterns.' . $subkey)) {
+            if (!static::getCache()->exists("$prefix.patterns." . $subkey)) {
                 $pattern_file_missing = true;
                 break;
             }
@@ -73,7 +74,7 @@ extends IniLt55
         // get patterns for the given start hashes
         foreach ($starts as $tmp_start) {
             $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
-            $file       = static::getCache()->getFileName('browscap.patterns.' . $tmp_subkey);
+            $file       = static::getCache()->getFileName("$prefix.patterns." . $tmp_subkey);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {

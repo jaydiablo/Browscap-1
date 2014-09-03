@@ -50,6 +50,13 @@ class Browscap
     const VERSION = '0.1';
 
     /**
+     * Dataset types
+     */
+    const DATASET_TYPE_DEFAULT = 1;
+    const DATASET_TYPE_SMALL   = 2;
+    const DATASET_TYPE_LARGE   = 3;
+
+    /**
      * Updater to use
      *
      * @var \Crossjoin\Browscap\Updater\AbstractUpdater
@@ -69,6 +76,12 @@ class Browscap
      * @var \Crossjoin\Browscap\Formatter\AbstractFormatter
      */
     protected static $formatter;
+
+    /**
+     * The dataset type to use (default, small or large,
+     * see constants).
+     */
+    protected static $datasetType = self::DATASET_TYPE_DEFAULT;
 
     /**
      * Probability in percent that the update check is done
@@ -194,6 +207,31 @@ class Browscap
             }
         }
         return static::$updater;
+    }
+
+    /**
+     * Sets the dataset type to use for the source.
+     *
+     * @param integer $datasetType
+     * @throws \InvalidArgumentException
+     */
+    public static function setDatasetType ($datasetType)
+    {
+        if (in_array($datasetType, array(self::DATASET_TYPE_DEFAULT, self::DATASET_TYPE_SMALL, self::DATASET_TYPE_LARGE), true)) {
+            static::$datasetType = $datasetType;
+        } else {
+            throw new \InvalidArgumentException("Invalid value for argument 'datasetType'.");
+        }
+    }
+
+    /**
+     * Gets the dataset type to use for the source.
+     *
+     * @return integer
+     */
+    public static function getDatasetType ()
+    {
+        return static::$datasetType;
     }
 
     /**

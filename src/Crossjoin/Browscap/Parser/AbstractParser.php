@@ -54,7 +54,8 @@ abstract class AbstractParser
     protected static $cache;
 
     /**
-     * The type to use when downloading the browscap source data,
+     * The type to use when downloading the browscap source data
+     * (default version: all browsers, default properties),
      * has to be overwritten by the extending class,
      * e.g. 'PHP_BrowscapINI'.
      *
@@ -64,13 +65,42 @@ abstract class AbstractParser
     protected $sourceType = '';
 
     /**
+     * The type to use when downloading the browscap source data
+     * (small version: popular browsers, default properties),
+     * has to be overwritten by the extending class,
+     * e.g. 'Lite_PHP_BrowscapINI'.
+     *
+     * @see http://browscap.org/
+     * @var string
+     */
+    protected $sourceTypeSmall = '';
+
+    /**
+     * The type to use when downloading the browscap source data
+     * (large version: all browsers, extended properties),
+     * has to be overwritten by the extending class,
+     * e.g. 'Full_PHP_BrowscapINI'.
+     *
+     * @see http://browscap.org/
+     * @var string
+     */
+    protected $sourceTypeLarge = '';
+
+    /**
      * Gets the type of source to use
      *
      * @return string
      */
     public function getSourceType()
     {
-        return $this->sourceType;
+        switch (\Crossjoin\Browscap\Browscap::getDatasetType()) {
+            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL:
+                return $this->sourceTypeSmall;
+            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE:
+                return $this->sourceTypeLarge;
+            default:
+                return $this->sourceType;
+        }
     }
 
     /**
@@ -123,5 +153,17 @@ abstract class AbstractParser
     public static function resetCachedData()
     {
         static::$version = null;
+    }
+
+    protected static function getCachePrefix()
+    {
+        switch (\Crossjoin\Browscap\Browscap::getDatasetType()) {
+            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL:
+                return 'smallbrowscap';
+            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE:
+                return 'largebrowscap';
+            default:
+                return 'browscap';
+        }
     }
 }

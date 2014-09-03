@@ -133,13 +133,26 @@ extends AbstractCache
      */
     public static function getCacheDirectory($with_version = false, $create_dir = false)
     {
+        // get sub directory name, depending on the dataset type
+        // (one sub directory for each dataset type and version)
+        switch (\Crossjoin\Browscap\Browscap::getDatasetType()) {
+            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL:
+                $subDirName = 'smallbrowscap';
+                break;
+            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE:
+                $subDirName = 'largebrowscap';
+                break;
+            default:
+                $subDirName = 'browscap';
+        }
+
         if (static::$cache_dir === null) {
             static::setCacheDirectory(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'browscap');
         }
         $path = static::$cache_dir;
 
         if ($with_version === true) {
-            $path .= DIRECTORY_SEPARATOR . 'browscap_v' . \Crossjoin\Browscap\Browscap::getParser()->getVersion();
+            $path .= DIRECTORY_SEPARATOR . $subDirName . '_v' . \Crossjoin\Browscap\Browscap::getParser()->getVersion();
         }
 
         if ($create_dir === true && !file_exists($path)) {
