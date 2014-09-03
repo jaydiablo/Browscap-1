@@ -18,7 +18,7 @@ Compared to other PHP Browscap parsers, this implementation offers the following
 - It has a very low memory consuption (for parsing and generating cache data)
 - All components are extendible - use your own parser, updater, formatter or cache functionality
 
-You can also switch the type of dataset to use - smaller, medium (default) or large:
+You can also switch the type of dataset to use - small, medium (default) or large:
 - The default dataset (containing all known browsers and the default properties)
 - The small dataset (with the most imporant browser only and the default properties)
 - The large dataset (with all known browsers and additional properties) 
