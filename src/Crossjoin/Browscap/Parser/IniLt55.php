@@ -108,11 +108,11 @@ extends AbstractParser
         $formatter = null;
 
         foreach ($this->getPatterns($user_agent) as $patterns) {
-            if (preg_match("/^(?:" . str_replace("\t", ")|(?:", $this->pregQuote($patterns)) . ")$/", $user_agent)) {
+            if (preg_match("/^(?:" . str_replace("\t", ")|(?:", $this->pregQuote($patterns)) . ")$/i", $user_agent)) {
                 // strtok() requires less memory than explode()
                 $pattern = strtok($patterns, "\t");
                 while ($pattern !== false) {
-                    if (preg_match("/^" . $this->pregQuote($pattern) . "$/", $user_agent)) {
+                    if (preg_match("/^" . $this->pregQuote($pattern) . "$/i", $user_agent)) {
                         $formatter = \Crossjoin\Browscap\Browscap::getFormatter();
                         $formatter->setData($this->getSettings($pattern));
                         break 2;
