@@ -577,6 +577,10 @@ extends AbstractParser
     protected static function getPatternStart($pattern, $variants = false)
     {
         $string = preg_replace('/^([^\*\?\s]*)[\*\?\s].*$/', '\\1', substr($pattern, 0, 32));
+
+        // use lowercase string to make the match case insensitive
+        $string = strtolower($string);
+        
         if ($variants === true) {
             $pattern_starts = array();
             for ($i = strlen($string); $i >= 1; $i--) {
