@@ -54,6 +54,7 @@ extends AbstractUpdaterRemote
 
         // add additional options
         $this->options['ConnectTimeout'] = 5;
+        $this->options['ScriptTimeLimit'] = 300;
     }
 
     /**
@@ -65,6 +66,10 @@ extends AbstractUpdaterRemote
      */
     protected function getRemoteData($url)
     {
+        // set time limit, required to get the data
+        $max_execution_time = ini_get('max_execution_time');
+        set_time_limit($this->getOption('ScriptTimeLimit'));
+
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -117,6 +122,9 @@ extends AbstractUpdaterRemote
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
+
+        // reset time limit to the previous value
+        set_time_limit($max_execution_time);
 
         // check for HTTP error
         $http_exception = $this->getHttpErrorException($http_code);

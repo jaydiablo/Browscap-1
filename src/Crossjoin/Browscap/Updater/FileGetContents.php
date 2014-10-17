@@ -57,6 +57,9 @@ extends AbstractUpdaterRemote
         if ((bool)(int)ini_get('allow_url_fopen') === false) {
             throw new \Exception("Please activate 'allow_url_fopen'.");
         }
+
+        // add additional options
+        $this->options['ScriptTimeLimit'] = 300;
     }
 
     /**
@@ -68,8 +71,15 @@ extends AbstractUpdaterRemote
      */
     protected function getRemoteData($url)
     {
+        // set time limit, required to get the data
+        $max_execution_time = ini_get('max_execution_time');
+        set_time_limit($this->getOption('ScriptTimeLimit'));
+
         $context = $this->getStreamContext();
         $return  = file_get_contents($url, false, $context);
+
+        // reset time limit to the previous value
+        set_time_limit($max_execution_time);
 
         // $http_response_header is a predefined variables,
         // automatically created by PHP after the call above
