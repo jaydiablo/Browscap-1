@@ -152,7 +152,9 @@ extends AbstractCache
         $path = static::$cache_dir;
 
         if ($with_version === true) {
-            $path .= DIRECTORY_SEPARATOR . $subDirName . '_v' . \Crossjoin\Browscap\Browscap::getParser()->getVersion();
+            $path .= DIRECTORY_SEPARATOR . $subDirName;
+            $path .= '_v' . \Crossjoin\Browscap\Browscap::getParser()->getVersion();
+            $path .= '_' . \Crossjoin\Browscap\Browscap::VERSION;
         }
 
         if ($create_dir === true && !file_exists($path)) {

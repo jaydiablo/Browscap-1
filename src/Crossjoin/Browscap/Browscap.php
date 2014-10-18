@@ -45,9 +45,10 @@ namespace Crossjoin\Browscap;
 class Browscap
 {
     /**
-     * Current version of the class.
+     * Current version of the package.
+     * Has to be updated to automatically renew cache data.
      */
-    const VERSION = '0.1';
+    const VERSION = '0.1.1';
 
     /**
      * Dataset types
@@ -117,7 +118,7 @@ class Browscap
         $return = static::getParser()->getBrowser($user_agent);
 
         // if not found, there has to be a problem with the source data,
-        // because normally defualt browser data are returned,
+        // because normally default browser data are returned,
         // so set the probability to 100%, to force an update.
         if ($return === null && $this->updateProbability < 100) {
             $updateProbability = $this->updateProbability;
