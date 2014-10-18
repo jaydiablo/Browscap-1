@@ -25,7 +25,7 @@ You can also switch the type of dataset to use - small, medium (default) or larg
 
 Requirements
 --------------
-- PHP 5.3+ (it has been successfully tested with PHP 5.3.28 - PHP 5.6.0, perhaps also older versions still work)
+- PHP 5.3+ (it has been successfully tested with PHP 5.3.28 - PHP 5.6.2, perhaps also older versions still work)
 - PHP 5.5+ recommended (to be able to use generators, which reduces memory consumption a lot)
 - For automatic updates: cURL extension or `allow_url_fopen` enabled in php.ini, 
 
