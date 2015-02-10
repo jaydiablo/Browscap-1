@@ -15,7 +15,7 @@ namespace Crossjoin\Browscap;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,8 +37,8 @@ namespace Crossjoin\Browscap;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -48,10 +48,10 @@ class Browscap
      * Current version of the package.
      * Has to be updated to automatically renew cache data.
      */
-    const VERSION = '0.1.1';
+    const VERSION = '1.0.0';
 
     /**
-     * Dataset types
+     * Data set types
      */
     const DATASET_TYPE_DEFAULT = 1;
     const DATASET_TYPE_SMALL   = 2;
@@ -79,7 +79,7 @@ class Browscap
     protected static $formatter;
 
     /**
-     * The dataset type to use (default, small or large,
+     * The data set type to use (default, small or large,
      * see constants).
      */
     protected static $datasetType = self::DATASET_TYPE_DEFAULT;
@@ -100,7 +100,7 @@ class Browscap
      */
     public function getBrowser($user_agent = null)
     {
-        // automatically detect the useragent
+        // automatically detect the user agent
         if ($user_agent === null) {
             if (isset($_SERVER['HTTP_USER_AGENT'])) {
                 $user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -137,7 +137,7 @@ class Browscap
     }
 
     /**
-     * Set theformatter instance to use for the getBrowser() result
+     * Set the formatter instance to use for the getBrowser() result
      *
      * @param \Crossjoin\Browscap\Formatter\AbstractFormatter $formatter
      */
@@ -195,7 +195,7 @@ class Browscap
     }
 
     /**
-     * Gets the updater instance (and itits the default one, if not set)
+     * Gets the updater instance (and initializes the default one, if not set)
      *
      * @return \Crossjoin\Browscap\Updater\AbstractUpdater
      */
@@ -211,7 +211,7 @@ class Browscap
     }
 
     /**
-     * Sets the dataset type to use for the source.
+     * Sets the data set type to use for the source.
      *
      * @param integer $datasetType
      * @throws \InvalidArgumentException
@@ -226,7 +226,7 @@ class Browscap
     }
 
     /**
-     * Gets the dataset type to use for the source.
+     * Gets the data set type to use for the source.
      *
      * @return integer
      */

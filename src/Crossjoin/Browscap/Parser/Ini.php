@@ -10,7 +10,7 @@ namespace Crossjoin\Browscap\Parser;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,8 @@ namespace Crossjoin\Browscap\Parser;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -48,6 +48,7 @@ extends IniLt55
      *   (the pattern cannot be longer than the user agent!)
      *
      * @param string $user_agent
+     * @return \Generator
      */
     protected function getPatterns($user_agent)
     {
@@ -58,8 +59,8 @@ extends IniLt55
         // check if pattern files need to be created
         $pattern_file_missing = false;
         foreach ($starts as $start) {
-            $subkey = $this->getPatternCacheSubkey($start);
-            if (!static::getCache()->exists("$prefix.patterns." . $subkey)) {
+            $sub_key = $this->getPatternCacheSubkey($start);
+            if (!static::getCache()->exists("$prefix.patterns." . $sub_key)) {
                 $pattern_file_missing = true;
                 break;
             }
@@ -73,8 +74,8 @@ extends IniLt55
 
         // get patterns for the given start hashes
         foreach ($starts as $tmp_start) {
-            $tmp_subkey = $this->getPatternCacheSubkey($tmp_start);
-            $file       = static::getCache()->getFileName("$prefix.patterns." . $tmp_subkey);
+            $tmp_sub_key = $this->getPatternCacheSubkey($tmp_start);
+            $file        = static::getCache()->getFileName("$prefix.patterns." . $tmp_sub_key);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {

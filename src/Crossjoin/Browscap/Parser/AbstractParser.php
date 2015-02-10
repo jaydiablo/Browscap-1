@@ -1,6 +1,9 @@
 <?php
 namespace Crossjoin\Browscap\Parser;
 
+use Crossjoin\Browscap\Browscap;
+use Crossjoin\Browscap\Cache;
+
 /**
  * Abstract parser class
  *
@@ -10,7 +13,7 @@ namespace Crossjoin\Browscap\Parser;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +35,8 @@ namespace Crossjoin\Browscap\Parser;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -93,10 +96,10 @@ abstract class AbstractParser
      */
     public function getSourceType()
     {
-        switch (\Crossjoin\Browscap\Browscap::getDatasetType()) {
-            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL:
+        switch (Browscap::getDatasetType()) {
+            case Browscap::DATASET_TYPE_SMALL:
                 return $this->sourceTypeSmall;
-            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE:
+            case Browscap::DATASET_TYPE_LARGE:
                 return $this->sourceTypeLarge;
             default:
                 return $this->sourceType;
@@ -111,8 +114,8 @@ abstract class AbstractParser
     abstract public function getVersion();
 
     /**
-     * Gets the browser data formatr for the given user agent
-     * (or null if no data avaailble, no even the default browser)
+     * Gets the browser data formatter for the given user agent
+     * (or null if no data available, no even the default browser)
      *
      * @param string $user_agent
      * @return \Crossjoin\Browscap\Formatter\AbstractFormatter|null
@@ -122,26 +125,28 @@ abstract class AbstractParser
     /**
      * Gets a cache instance
      *
-     * @return \Crossjoin\Browscap\Cache\AbstractCache
+     * @return Cache\AbstractCache
      */
     public static function getCache()
     {
         if (static::$cache === null) {
-            static::$cache = new \Crossjoin\Browscap\Cache\File();
+            static::$cache = new Cache\File();
         }
         return static::$cache;
     }
 
     /**
      * Sets a cache instance
+     *
+     * @param Cache\AbstractCache $cache
      */
-    public static function setCache(\Crossjoin\Browscap\Cache\AbstractCache $cache)
+    public static function setCache(Cache\AbstractCache $cache)
     {
         static::$cache = $cache;
     }
 
     /**
-     * Checks if the surce needs to be updated and processes the update
+     * Checks if the source needs to be updated and processes the update
      *
      * @param boolean $forceUpdate
      */
@@ -157,10 +162,10 @@ abstract class AbstractParser
 
     protected static function getCachePrefix()
     {
-        switch (\Crossjoin\Browscap\Browscap::getDatasetType()) {
-            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL:
+        switch (Browscap::getDatasetType()) {
+            case Browscap::DATASET_TYPE_SMALL:
                 return 'smallbrowscap';
-            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE:
+            case Browscap::DATASET_TYPE_LARGE:
                 return 'largebrowscap';
             default:
                 return 'browscap';

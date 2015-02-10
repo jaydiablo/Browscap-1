@@ -11,7 +11,7 @@ namespace Crossjoin\Browscap\Cache;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,8 @@ namespace Crossjoin\Browscap\Cache;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -60,8 +60,8 @@ abstract class AbstractCache
     /**
      * Delete cached data by a given key
      *
-     * @param type $key
-     * @param type $with_version
+     * @param string $key
+     * @param boolean $with_version
      * @return boolean
      */
     abstract public function delete ($key, $with_version = true);
@@ -69,8 +69,8 @@ abstract class AbstractCache
     /**
      * Check if a key is already cached
      *
-     * @param type $key
-     * @param type $with_version
+     * @param string $key
+     * @param boolean $with_version
      * @return boolean
      */
     abstract public function exists ($key, $with_version = true);

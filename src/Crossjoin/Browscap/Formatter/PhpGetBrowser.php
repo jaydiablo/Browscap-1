@@ -7,7 +7,7 @@ namespace Crossjoin\Browscap\Formatter;
  * This formatter modifies the basic data, so that you get the same result
  * as with the PHP get_browser() function (an object, and all keys lower case).
  *
- * @note There is on difference: The wrong encoded character used in
+ * @note There is one difference: The wrong encoded character used in
  * "browser_name_regex" of the standard PHP get_browser() result has been
  * replaced. The regular expression itself is the same.
  * @see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=612364
@@ -15,7 +15,7 @@ namespace Crossjoin\Browscap\Formatter;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,8 +37,8 @@ namespace Crossjoin\Browscap\Formatter;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */

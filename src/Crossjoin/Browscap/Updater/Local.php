@@ -10,7 +10,7 @@ namespace Crossjoin\Browscap\Updater;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,8 @@ namespace Crossjoin\Browscap\Updater;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -61,6 +61,7 @@ extends AbstractUpdater
      * Gets the current browscap version (time stamp)
      *
      * @return int
+     * @throws \Exception
      */
     public function getBrowscapVersion()
     {
@@ -88,6 +89,7 @@ extends AbstractUpdater
      * Gets the browscap data of the used source type
      *
      * @return string|boolean
+     * @throws \Exception
      */
     public function getBrowscapSource()
     {

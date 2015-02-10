@@ -1,6 +1,8 @@
 <?php
 namespace Crossjoin\Browscap\Cache;
 
+use Crossjoin\Browscap\Browscap;
+
 /**
  * File cache class
  *
@@ -10,7 +12,7 @@ namespace Crossjoin\Browscap\Cache;
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +34,8 @@ namespace Crossjoin\Browscap\Cache;
  *
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
- * @copyright Copyright (c) 2014 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 0.1
+ * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
+ * @version 1.0.0
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -75,8 +77,8 @@ extends AbstractCache
     /**
      * Delete cached data by a given key
      *
-     * @param type $key
-     * @param type $with_version
+     * @param string $key
+     * @param boolean $with_version
      * @return boolean
      */
     public function delete($key, $with_version = true)
@@ -91,8 +93,8 @@ extends AbstractCache
     /**
      * Check if a key is already cached
      *
-     * @param type $key
-     * @param type $with_version
+     * @param string $key
+     * @param boolean $with_version
      * @return boolean
      */
     public function exists($key, $with_version = true)
@@ -133,13 +135,13 @@ extends AbstractCache
      */
     public static function getCacheDirectory($with_version = false, $create_dir = false)
     {
-        // get sub directory name, depending on the dataset type
-        // (one sub directory for each dataset type and version)
-        switch (\Crossjoin\Browscap\Browscap::getDatasetType()) {
-            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_SMALL:
+        // get sub directory name, depending on the data set type
+        // (one sub directory for each data set type and version)
+        switch (Browscap::getDatasetType()) {
+            case Browscap::DATASET_TYPE_SMALL:
                 $subDirName = 'smallbrowscap';
                 break;
-            case \Crossjoin\Browscap\Browscap::DATASET_TYPE_LARGE:
+            case Browscap::DATASET_TYPE_LARGE:
                 $subDirName = 'largebrowscap';
                 break;
             default:
@@ -153,8 +155,8 @@ extends AbstractCache
 
         if ($with_version === true) {
             $path .= DIRECTORY_SEPARATOR . $subDirName;
-            $path .= '_v' . \Crossjoin\Browscap\Browscap::getParser()->getVersion();
-            $path .= '_' . \Crossjoin\Browscap\Browscap::VERSION;
+            $path .= '_v' . Browscap::getParser()->getVersion();
+            $path .= '_' . Browscap::VERSION;
         }
 
         if ($create_dir === true && !file_exists($path)) {
