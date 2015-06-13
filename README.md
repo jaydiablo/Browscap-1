@@ -36,7 +36,7 @@ Crossjoin\Browscap is provided as a Composer package which can be installed by a
 ```
 {
     "require": {
-        "crossjoin/browscap": "dev-master"
+        "crossjoin/browscap": "1.0.*"
     }
 }
 ```
