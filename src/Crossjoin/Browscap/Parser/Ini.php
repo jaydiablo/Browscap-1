@@ -75,7 +75,9 @@ extends IniLt55
         // get patterns for the given start hashes
         foreach ($starts as $tmp_start) {
             $tmp_sub_key = $this->getPatternCacheSubkey($tmp_start);
-            $file        = static::getCache()->getFileName("$prefix.patterns." . $tmp_sub_key);
+            /** @var \Crossjoin\Browscap\Cache\File $cache */
+            $cache = static::getCache();
+            $file  = $cache->getFileName("$prefix.patterns." . $tmp_sub_key);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {
