@@ -157,7 +157,9 @@ extends AbstractParser
         if ($updater !== null && ($updater instanceof Updater\None) === false) {
             // initialize variables
             $prefix   = static::getCachePrefix();
-            $path     = static::getCache()->getFileName("$prefix.ini", true);
+            /** @var Cache\File $cache */
+            $cache    = static::getCache();
+            $path     = $cache->getFileName("$prefix.ini", true);
             $readable = is_readable($path);
             $local_ts = 0;
 
@@ -296,7 +298,9 @@ extends AbstractParser
         $pattern_arr = array();
         foreach ($starts as $tmp_start) {
             $tmp_sub_key = $this->getPatternCacheSubkey($tmp_start);
-            $file       = static::getCache()->getFileName("$prefix.patterns." . $tmp_sub_key);
+            /** @var Cache\File $cache */
+            $cache = static::getCache();
+            $file  = $cache->getFileName("$prefix.patterns." . $tmp_sub_key);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {
@@ -498,7 +502,9 @@ extends AbstractParser
         }
 
         $return = array();
-        $file   = static::getCache()->getFileName("$prefix.iniparts." . $sub_key);
+        /** @var Cache\File $cache */
+        $cache  = static::getCache();
+        $file   = $cache->getFileName("$prefix.iniparts." . $sub_key);
         $handle = fopen($file, "r");
         if ($handle) {
             while (($buffer = fgets($handle)) !== false) {
