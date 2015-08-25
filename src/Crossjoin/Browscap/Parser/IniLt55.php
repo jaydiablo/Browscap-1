@@ -216,7 +216,7 @@ extends AbstractParser
                             static::$version = (int)$source_version;
                         } else {
                             $key = $this->pregQuote(self::BROWSCAP_VERSION_KEY);
-                            if (preg_match("/\.*[" . $key . "\][^[]*Version=(\d+)\D.*/", $source_content, $matches)) {
+                            if (preg_match("/\\.*[" . $key . "\\][^[]*Version=(\\d+)\\D.*/", $source_content, $matches)) {
                                 if (isset($matches[1])) {
                                     static::$version = (int)$matches[1];
                                 }
