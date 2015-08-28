@@ -112,14 +112,30 @@ extends AbstractParser
         $formatter = null;
 
         foreach ($this->getPatterns($user_agent) as $patterns) {
-            if (preg_match("/^(?:" . str_replace("\t", ")|(?:", $this->pregQuote($patterns)) . ")$/i", $user_agent)) {
+            if (preg_match("/^(?:" . str_replace("\t", ")|(?:", $patterns) . ")$/i", $user_agent)) {
                 // strtok() requires less memory than explode()
                 $pattern = strtok($patterns, "\t");
                 while ($pattern !== false) {
-                    if (preg_match("/^" . $this->pregQuote($pattern) . "$/i", $user_agent)) {
-                        $formatter = Browscap::getFormatter();
-                        $formatter->setData($this->getSettings($pattern));
-                        break 2;
+                    $pattern = str_replace('[\d]+', '(\d+)', $pattern);
+                    if (preg_match('/^' . $pattern . '$/i', $user_agent, $matches)) {
+                        // Insert the digits back into the pattern, so that we can search the settings for it
+                        if (count($matches) > 1) {
+                            array_shift($matches);
+                            foreach ($matches as $one_match) {
+                                $num_pos = strpos($pattern, '(\d+)');
+                                $pattern = substr_replace($pattern, $one_match, $num_pos, 5);
+                            }
+                        }
+
+                        // Try to get settings - as digits have been replaced to speed up the pattern search (up to 90 faster),
+                        // we won't always find the data in the first step - so check if settings have been found and if not,
+                        // search for the next pattern.
+                        $settings = $this->getSettings($pattern);
+                        if (count($settings) > 0) {
+                            $formatter = Browscap::getFormatter();
+                            $formatter->setData($this->getSettings($pattern));
+                            break 2;
+                        }
                     }
                     $pattern = strtok("\t");
                 }
@@ -361,7 +377,20 @@ extends AbstractParser
                 if (!isset($data[$tmp_start][$tmp_length])) {
                     $data[$tmp_start][$tmp_length] = array();
                 }
-                $data[$tmp_start][$tmp_length][] = $match;
+
+                $match = $this->pregQuote($match);
+
+                // Check if the pattern contains digits - in this case we replace them with a digit regular expression,
+                // so that very similar patterns (e.g. only with different browser version numbers) can be compressed.
+                // This helps to speed up the first (and most expensive) part of the pattern search a lot.
+                if (strpbrk($match, '0123456789') !== false) {
+                    $compressedPattern = preg_replace('/\d+/', '[\d]+', $match);
+                    if (!in_array($compressedPattern, $data[$tmp_start][$tmp_length])) {
+                        $data[$tmp_start][$tmp_length][] = $compressedPattern;
+                    }
+                } else {
+                    $data[$tmp_start][$tmp_length][] = $match;
+                }
             }
 
             // sorting of the data is important to check the patterns later in the correct order, because
@@ -462,13 +491,25 @@ extends AbstractParser
      */
     protected function getSettings($pattern, $settings = array())
     {
+        // The pattern has been pre-quoted on generation to speed up the pattern search,
+        // but for this check we need the unquoted version
+        $unquotedPattern = $this->pregUnQuote($pattern);
+
+        // Try to get settings for the pattern
+        $add_settings = $this->getIniPart($unquotedPattern);
+
         // set some additional data
         if (count($settings) === 0) {
-            $settings['browser_name_regex']   = '/^' . $this->pregQuote($pattern) . '$/';
-            $settings['browser_name_pattern'] = $pattern;
+            // The optimization with replaced digits get can now result in setting searches, for which we
+            // won't find a result - so only add the pattern information, is settings have been found.
+            //
+            // If not an empty array will be returned and the calling function can easily check if a pattern
+            // has been found.
+            if (count($add_settings) > 0) {
+                $settings['browser_name_regex']   = '/^' . $pattern . '$/';
+                $settings['browser_name_pattern'] = $unquotedPattern;
+            }
         }
-
-        $add_settings = $this->getIniPart($pattern);
 
         // check if parent pattern set, only keep the first one
         $parent_pattern = null;
@@ -483,7 +524,7 @@ extends AbstractParser
         $settings += $add_settings;
 
         if ($parent_pattern !== null) {
-            return $this->getSettings($parent_pattern, $settings);
+            return $this->getSettings($this->pregQuote($parent_pattern), $settings);
         }
 
         return $settings;
@@ -566,7 +607,8 @@ extends AbstractParser
      * @return string
      */
     protected function getIniPartCacheSubKey($string)
-        return $string[0] . $string[1];
+    {
+        return $string[0] . $string[1] . $string[2];
     }
 
     /**
@@ -640,5 +682,39 @@ extends AbstractParser
         // The \\x replacement is a fix for "Der gro\xdfe BilderSauger 2.00u" user agent match
         // @source https://github.com/browscap/browscap-php
         return str_replace(array('\*', '\?', '\\x'), array('.*', '.', '\\\\x'), $pattern);
+    }
+
+    /**
+     * Reverts the quoting of a pattern.
+     *
+     * @param string $pattern
+     * @return string
+     */
+    protected static function pregUnQuote($pattern)
+    {
+        // Fast check, because most parent pattern like 'DefaultProperties' don't need a replacement
+        if (preg_match('/[^a-z\s]/i', $pattern)) {
+            // Undo the \\x replacement, that is a fix for "Der gro\xdfe BilderSauger 2.00u" user agent match
+            // @source https://github.com/browscap/browscap-php
+            $pattern = preg_replace(
+                ['/(?<!\\\\)\\.\\*/', '/(?<!\\\\)\\./', '/(?<!\\\\)\\\\x/'],
+                ['\\*', '\\?', '\\x'],
+                $pattern
+            );
+
+            // Undo preg_quote
+            $pattern = str_replace(
+                array(
+                    "\\\\", "\\+", "\\*", "\\?", "\\[", "\\^", "\\]", "\\\$", "\\(", "\\)", "\\{", "\\}", "\\=",
+                    "\\!", "\\<", "\\>", "\\|", "\\:", "\\-", "\\.", "\\/"
+                ),
+                array(
+                    "\\", "+", "*", "?", "[", "^", "]", "\$", "(", ")", "{", "}", "=", "!", "<", ">", "|", ":",
+                    "-", ".", "/"
+                ),
+                $pattern
+            );
+        }
+        return $pattern;
     }
 }

@@ -48,7 +48,7 @@ class Browscap
      * Current version of the package.
      * Has to be updated to automatically renew cache data.
      */
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.2';
 
     /**
      * Data set types
