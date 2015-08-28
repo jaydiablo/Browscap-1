@@ -132,6 +132,7 @@ extends AbstractCache
      * Gets the main/version cache directory
      *
      * @param boolean $with_version
+     * @param bool $create_dir
      * @return string
      */
     public static function getCacheDirectory($with_version = false, $create_dir = false)
