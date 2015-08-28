@@ -137,7 +137,9 @@ extends AbstractParser
     public static function setCache(Cache\AbstractCache $cache)
     {
         if (!($cache instanceof Cache\File)) {
-            throw new \InvalidArgumentException("This parser requires a cache instance of '\\Crossjoin\\Browscap\\Cache\\File'.");
+            throw new \InvalidArgumentException(
+                "This parser requires a cache instance of '\\Crossjoin\\Browscap\\Cache\\File'."
+            );
         }
         static::$cache = $cache;
     }
@@ -398,10 +400,12 @@ extends AbstractParser
             $prefix   = static::getCachePrefix();
             $sub_keys = array_flip($this->getAllPatternCacheSubkeys());
             foreach ($contents as $sub_key => $content) {
+                $sub_key = (string)$sub_key;
                 static::getCache()->set("$prefix.patterns." . $sub_key, $content, true);
                 unset($sub_keys[$sub_key]);
             }
             foreach (array_keys($sub_keys) as $sub_key) {
+                $sub_key = (string)$sub_key;
                 static::getCache()->set("$prefix.patterns." . $sub_key, '', true);
             }
         }
@@ -494,7 +498,7 @@ extends AbstractParser
     protected function getIniPart($pattern)
     {
         $pattern_hash = md5($pattern);
-        $sub_key      = $this->getIniPartCacheSubkey($pattern_hash);
+        $sub_key      = $this->getIniPartCacheSubKey($pattern_hash);
         $prefix       = static::getCachePrefix();
 
         if (!static::getCache()->exists("$prefix.iniparts." . $sub_key)) {
@@ -537,7 +541,7 @@ extends AbstractParser
         $contents  = array();
         foreach ($pattern_positions as $position => $pattern) {
             $pattern_hash = md5($pattern);
-            $sub_key      = $this->getIniPartCacheSubkey($pattern_hash);
+            $sub_key      = $this->getIniPartCacheSubKey($pattern_hash);
             if (!isset($contents[$sub_key])) {
                 $contents[$sub_key] = '';
             }
@@ -550,6 +554,7 @@ extends AbstractParser
             ) . "\n";
         }
         foreach ($contents as $chars => $content) {
+            $chars = (string)$chars;
             static::getCache()->set("$prefix.iniparts." . $chars, $content);
         }
     }
@@ -560,7 +565,7 @@ extends AbstractParser
      * @param string $string
      * @return string
      */
-    protected function getIniPartCacheSubkey($string) {
+    protected function getIniPartCacheSubKey($string)
         return $string[0] . $string[1];
     }
 
