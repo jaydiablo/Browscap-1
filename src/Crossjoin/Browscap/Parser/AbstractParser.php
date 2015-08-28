@@ -36,7 +36,7 @@ use Crossjoin\Browscap\Cache;
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
  * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 1.0.0
+ * @version 1.0.2
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -160,6 +160,11 @@ abstract class AbstractParser
         static::$version = null;
     }
 
+    /**
+     * Gets the cache prefix, dependent of the used browscap dataset type.
+     *
+     * @return string
+     */
     protected static function getCachePrefix()
     {
         switch (Browscap::getDatasetType()) {

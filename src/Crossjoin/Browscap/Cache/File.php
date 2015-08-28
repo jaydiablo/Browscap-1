@@ -35,7 +35,7 @@ use Crossjoin\Browscap\Browscap;
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
  * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 1.0.0
+ * @version 1.0.2
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -107,6 +107,7 @@ extends AbstractCache
      *
      * @param string $key
      * @param boolean $with_version
+     * @param bool $create_dir
      * @return string
      */
     public function getFileName($key, $with_version = true, $create_dir = false)
@@ -131,6 +132,7 @@ extends AbstractCache
      * Gets the main/version cache directory
      *
      * @param boolean $with_version
+     * @param bool $create_dir
      * @return string
      */
     public static function getCacheDirectory($with_version = false, $create_dir = false)

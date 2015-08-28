@@ -38,7 +38,7 @@ use Crossjoin\Browscap\Updater;
  * @package Crossjoin\Browscap
  * @author Christoph Ziegenberg <christoph@ziegenberg.com>
  * @copyright Copyright (c) 2014-2015 Christoph Ziegenberg <christoph@ziegenberg.com>
- * @version 1.0.0
+ * @version 1.0.2
  * @license http://www.opensource.org/licenses/MIT MIT License
  * @link https://github.com/crossjoin/browscap
  */
@@ -112,14 +112,30 @@ extends AbstractParser
         $formatter = null;
 
         foreach ($this->getPatterns($user_agent) as $patterns) {
-            if (preg_match("/^(?:" . str_replace("\t", ")|(?:", $this->pregQuote($patterns)) . ")$/i", $user_agent)) {
+            if (preg_match("/^(?:" . str_replace("\t", ")|(?:", $patterns) . ")$/i", $user_agent)) {
                 // strtok() requires less memory than explode()
                 $pattern = strtok($patterns, "\t");
                 while ($pattern !== false) {
-                    if (preg_match("/^" . $this->pregQuote($pattern) . "$/i", $user_agent)) {
-                        $formatter = Browscap::getFormatter();
-                        $formatter->setData($this->getSettings($pattern));
-                        break 2;
+                    $pattern = str_replace('[\d]+', '(\d+)', $pattern);
+                    if (preg_match('/^' . $pattern . '$/i', $user_agent, $matches)) {
+                        // Insert the digits back into the pattern, so that we can search the settings for it
+                        if (count($matches) > 1) {
+                            array_shift($matches);
+                            foreach ($matches as $one_match) {
+                                $num_pos = strpos($pattern, '(\d+)');
+                                $pattern = substr_replace($pattern, $one_match, $num_pos, 5);
+                            }
+                        }
+
+                        // Try to get settings - as digits have been replaced to speed up the pattern search (up to 90 faster),
+                        // we won't always find the data in the first step - so check if settings have been found and if not,
+                        // search for the next pattern.
+                        $settings = $this->getSettings($pattern);
+                        if (count($settings) > 0) {
+                            $formatter = Browscap::getFormatter();
+                            $formatter->setData($this->getSettings($pattern));
+                            break 2;
+                        }
                     }
                     $pattern = strtok("\t");
                 }
@@ -137,7 +153,9 @@ extends AbstractParser
     public static function setCache(Cache\AbstractCache $cache)
     {
         if (!($cache instanceof Cache\File)) {
-            throw new \InvalidArgumentException("This parser requires a cache instance of '\\Crossjoin\\Browscap\\Cache\\File'.");
+            throw new \InvalidArgumentException(
+                "This parser requires a cache instance of '\\Crossjoin\\Browscap\\Cache\\File'."
+            );
         }
         static::$cache = $cache;
     }
@@ -157,7 +175,9 @@ extends AbstractParser
         if ($updater !== null && ($updater instanceof Updater\None) === false) {
             // initialize variables
             $prefix   = static::getCachePrefix();
-            $path     = static::getCache()->getFileName("$prefix.ini", true);
+            /** @var Cache\File $cache */
+            $cache    = static::getCache();
+            $path     = $cache->getFileName("$prefix.ini", true);
             $readable = is_readable($path);
             $local_ts = 0;
 
@@ -214,7 +234,7 @@ extends AbstractParser
                             static::$version = (int)$source_version;
                         } else {
                             $key = $this->pregQuote(self::BROWSCAP_VERSION_KEY);
-                            if (preg_match("/\.*[" . $key . "\][^[]*Version=(\d+)\D.*/", $source_content, $matches)) {
+                            if (preg_match("/\\.*[" . $key . "\\][^[]*Version=(\\d+)\\D.*/", $source_content, $matches)) {
                                 if (isset($matches[1])) {
                                     static::$version = (int)$matches[1];
                                 }
@@ -296,7 +316,9 @@ extends AbstractParser
         $pattern_arr = array();
         foreach ($starts as $tmp_start) {
             $tmp_sub_key = $this->getPatternCacheSubkey($tmp_start);
-            $file       = static::getCache()->getFileName("$prefix.patterns." . $tmp_sub_key);
+            /** @var Cache\File $cache */
+            $cache = static::getCache();
+            $file  = $cache->getFileName("$prefix.patterns." . $tmp_sub_key);
             if (file_exists($file)) {
                 $handle = fopen($file, "r");
                 if ($handle) {
@@ -355,7 +377,20 @@ extends AbstractParser
                 if (!isset($data[$tmp_start][$tmp_length])) {
                     $data[$tmp_start][$tmp_length] = array();
                 }
-                $data[$tmp_start][$tmp_length][] = $match;
+
+                $match = $this->pregQuote($match);
+
+                // Check if the pattern contains digits - in this case we replace them with a digit regular expression,
+                // so that very similar patterns (e.g. only with different browser version numbers) can be compressed.
+                // This helps to speed up the first (and most expensive) part of the pattern search a lot.
+                if (strpbrk($match, '0123456789') !== false) {
+                    $compressedPattern = preg_replace('/\d+/', '[\d]+', $match);
+                    if (!in_array($compressedPattern, $data[$tmp_start][$tmp_length])) {
+                        $data[$tmp_start][$tmp_length][] = $compressedPattern;
+                    }
+                } else {
+                    $data[$tmp_start][$tmp_length][] = $match;
+                }
             }
 
             // sorting of the data is important to check the patterns later in the correct order, because
@@ -394,10 +429,12 @@ extends AbstractParser
             $prefix   = static::getCachePrefix();
             $sub_keys = array_flip($this->getAllPatternCacheSubkeys());
             foreach ($contents as $sub_key => $content) {
+                $sub_key = (string)$sub_key;
                 static::getCache()->set("$prefix.patterns." . $sub_key, $content, true);
                 unset($sub_keys[$sub_key]);
             }
             foreach (array_keys($sub_keys) as $sub_key) {
+                $sub_key = (string)$sub_key;
                 static::getCache()->set("$prefix.patterns." . $sub_key, '', true);
             }
         }
@@ -454,13 +491,25 @@ extends AbstractParser
      */
     protected function getSettings($pattern, $settings = array())
     {
+        // The pattern has been pre-quoted on generation to speed up the pattern search,
+        // but for this check we need the unquoted version
+        $unquotedPattern = $this->pregUnQuote($pattern);
+
+        // Try to get settings for the pattern
+        $add_settings = $this->getIniPart($unquotedPattern);
+
         // set some additional data
         if (count($settings) === 0) {
-            $settings['browser_name_regex']   = '/^' . $this->pregQuote($pattern) . '$/';
-            $settings['browser_name_pattern'] = $pattern;
+            // The optimization with replaced digits get can now result in setting searches, for which we
+            // won't find a result - so only add the pattern information, is settings have been found.
+            //
+            // If not an empty array will be returned and the calling function can easily check if a pattern
+            // has been found.
+            if (count($add_settings) > 0) {
+                $settings['browser_name_regex']   = '/^' . $pattern . '$/';
+                $settings['browser_name_pattern'] = $unquotedPattern;
+            }
         }
-
-        $add_settings = $this->getIniPart($pattern);
 
         // check if parent pattern set, only keep the first one
         $parent_pattern = null;
@@ -475,7 +524,7 @@ extends AbstractParser
         $settings += $add_settings;
 
         if ($parent_pattern !== null) {
-            return $this->getSettings($parent_pattern, $settings);
+            return $this->getSettings($this->pregQuote($parent_pattern), $settings);
         }
 
         return $settings;
@@ -490,7 +539,7 @@ extends AbstractParser
     protected function getIniPart($pattern)
     {
         $pattern_hash = md5($pattern);
-        $sub_key      = $this->getIniPartCacheSubkey($pattern_hash);
+        $sub_key      = $this->getIniPartCacheSubKey($pattern_hash);
         $prefix       = static::getCachePrefix();
 
         if (!static::getCache()->exists("$prefix.iniparts." . $sub_key)) {
@@ -498,7 +547,9 @@ extends AbstractParser
         }
 
         $return = array();
-        $file   = static::getCache()->getFileName("$prefix.iniparts." . $sub_key);
+        /** @var Cache\File $cache */
+        $cache  = static::getCache();
+        $file   = $cache->getFileName("$prefix.iniparts." . $sub_key);
         $handle = fopen($file, "r");
         if ($handle) {
             while (($buffer = fgets($handle)) !== false) {
@@ -531,7 +582,7 @@ extends AbstractParser
         $contents  = array();
         foreach ($pattern_positions as $position => $pattern) {
             $pattern_hash = md5($pattern);
-            $sub_key      = $this->getIniPartCacheSubkey($pattern_hash);
+            $sub_key      = $this->getIniPartCacheSubKey($pattern_hash);
             if (!isset($contents[$sub_key])) {
                 $contents[$sub_key] = '';
             }
@@ -544,6 +595,7 @@ extends AbstractParser
             ) . "\n";
         }
         foreach ($contents as $chars => $content) {
+            $chars = (string)$chars;
             static::getCache()->set("$prefix.iniparts." . $chars, $content);
         }
     }
@@ -554,8 +606,9 @@ extends AbstractParser
      * @param string $string
      * @return string
      */
-    protected function getIniPartCacheSubkey($string) {
-        return $string[0] . $string[1];
+    protected function getIniPartCacheSubKey($string)
+    {
+        return $string[0] . $string[1] . $string[2];
     }
 
     /**
@@ -629,5 +682,39 @@ extends AbstractParser
         // The \\x replacement is a fix for "Der gro\xdfe BilderSauger 2.00u" user agent match
         // @source https://github.com/browscap/browscap-php
         return str_replace(array('\*', '\?', '\\x'), array('.*', '.', '\\\\x'), $pattern);
+    }
+
+    /**
+     * Reverts the quoting of a pattern.
+     *
+     * @param string $pattern
+     * @return string
+     */
+    protected static function pregUnQuote($pattern)
+    {
+        // Fast check, because most parent pattern like 'DefaultProperties' don't need a replacement
+        if (preg_match('/[^a-z\s]/i', $pattern)) {
+            // Undo the \\x replacement, that is a fix for "Der gro\xdfe BilderSauger 2.00u" user agent match
+            // @source https://github.com/browscap/browscap-php
+            $pattern = preg_replace(
+                ['/(?<!\\\\)\\.\\*/', '/(?<!\\\\)\\./', '/(?<!\\\\)\\\\x/'],
+                ['\\*', '\\?', '\\x'],
+                $pattern
+            );
+
+            // Undo preg_quote
+            $pattern = str_replace(
+                array(
+                    "\\\\", "\\+", "\\*", "\\?", "\\[", "\\^", "\\]", "\\\$", "\\(", "\\)", "\\{", "\\}", "\\=",
+                    "\\!", "\\<", "\\>", "\\|", "\\:", "\\-", "\\.", "\\/"
+                ),
+                array(
+                    "\\", "+", "*", "?", "[", "^", "]", "\$", "(", ")", "{", "}", "=", "!", "<", ">", "|", ":",
+                    "-", ".", "/"
+                ),
+                $pattern
+            );
+        }
+        return $pattern;
     }
 }
