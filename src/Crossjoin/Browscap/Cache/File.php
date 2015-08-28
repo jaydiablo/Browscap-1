@@ -107,6 +107,7 @@ extends AbstractCache
      *
      * @param string $key
      * @param boolean $with_version
+     * @param bool $create_dir
      * @return string
      */
     public function getFileName($key, $with_version = true, $create_dir = false)
