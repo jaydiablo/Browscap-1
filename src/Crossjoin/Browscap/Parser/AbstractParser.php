@@ -160,6 +160,11 @@ abstract class AbstractParser
         static::$version = null;
     }
 
+    /**
+     * Gets the cache prefix, dependent of the used browscap dataset type.
+     * 
+     * @return string
+     */
     protected static function getCachePrefix()
     {
         switch (Browscap::getDatasetType()) {
