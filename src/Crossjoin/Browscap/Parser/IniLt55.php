@@ -645,7 +645,8 @@ extends AbstractParser
         if ($variants === true) {
             $pattern_starts = array();
             for ($i = strlen($string); $i >= 1; $i--) {
-                $pattern_starts[] = md5(substr($string, 0, $i));
+                $string = substr($string, 0, $i);
+                $pattern_starts[] = md5($string);
             }
 
             // Add empty pattern start to include patterns that start with "*",
