@@ -550,17 +550,18 @@ extends AbstractParser
         /** @var Cache\File $cache */
         $cache  = static::getCache();
         $file   = $cache->getFileName("$prefix.iniparts." . $sub_key);
-        $handle = fopen($file, "r");
-        if ($handle) {
-            while (($buffer = fgets($handle)) !== false) {
-                if (substr($buffer, 0, 32) === $pattern_hash) {
-                    $return = json_decode(substr($buffer, 32), true);
-                    break;
+        if (file_exists($file)) {
+            $handle = fopen($file, "r");
+            if ($handle) {
+                while (($buffer = fgets($handle)) !== false) {
+                    if (substr($buffer, 0, 32) === $pattern_hash) {
+                        $return = json_decode(substr($buffer, 32), true);
+                        break;
+                    }
                 }
+                fclose($handle);
             }
-            fclose($handle);
         }
-
         return $return;
     }
 
