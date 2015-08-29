@@ -9,12 +9,12 @@ Crossjoin\Browscap allows to check for browser settings based on the user agent 
 
 Although PHP has the native [`get_browser()`](http://php.net/get_browser) function to do this, this implementation offers some advantages:
 - The PHP function requires to set the path of the browscap.ini file in the php.ini directive [`browscap`](http://www.php.net/manual/en/misc.configuration.php#ini.browscap), which is flagged as `PHP_INI_SYSTEM` (so it can only be set in php.ini or httpd.conf, which isn't allowed in many cases, e.g. in shared hosting environments).
-- It's much faster than the PHP function (between 20-50 times, depending on the PHP version, the searched user agent and other factors)
+- It's much faster than the PHP function (about 500 times, depending on the PHP version, the searched user agent and other factors)
 - It includes automatic updates of the Browscap source
 
 Compared to other PHP Browscap parsers, this implementation offers the following advantages
-- It's very fast due to optimized caching of the Browscap data
-- It checks the PHP version and uses special PHP 5.5 features for best performance
+- It's very fast due to optimized caching of the Browscap data, for example it's [more than 13 times performant](https://github.com/crossjoin/Browscap/issues/12#issuecomment-135963430) compared to [Browscap-PHP](https://github.com/browscap/browscap-php)
+- It supports all PHP versions from 5.3.x to 7.0.x and uses newest available features for best performance
 - It has a very low memory consumption (for parsing and generating cache data)
 - All components are extensible - use your own parser, updater, formatter or cache functionality
 
@@ -22,13 +22,17 @@ You can also switch the type of data set to use - small, medium (default) or lar
 - The default data set (containing all known browsers and the default properties)
 - The small data set (with the most important browser only and the default properties)
 - The large data set (with all known browsers and additional properties)
+- The parsing time is nearly the same for all versions, it only affects the time and memory consumption for the cache data preparation.
 
 Requirements
 --------------
-- PHP 5.3+ (it has been successfully tested with PHP 5.3.28 - PHP 5.6.5, perhaps also older versions still work)
-- PHP 5.5+ recommended (to be able to use generators, which reduces memory consumption a lot)
-- For automatic updates: cURL extension or `allow_url_fopen` enabled in php.ini, 
+- PHP 5.3+ (it has been successfully tested with PHP 5.3.28 - PHP 7.0.0RC1, perhaps also older versions still work)
 
+Suggestions
+--------------
+- PHP 5.5+ recommended (to be able to use generators, which reduces memory consumption a lot)
+- PHP 7.0+ for best performance (50%-60% faster than PHP 5.5+)
+- For automatic updates: cURL extension or `allow_url_fopen` enabled in php.ini
 
 Package installation
 --------------
@@ -36,7 +40,7 @@ Crossjoin\Browscap is provided as a Composer package which can be installed by a
 ```
 {
     "require": {
-        "crossjoin/browscap": "dev-master"
+        "crossjoin/browscap": "1.0.*"
     }
 }
 ```
