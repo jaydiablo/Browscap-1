@@ -116,14 +116,14 @@ extends AbstractParser
                 // strtok() requires less memory than explode()
                 $pattern = strtok($patterns, "\t");
                 while ($pattern !== false) {
-                    $pattern = str_replace('[\d]+', '(\d+)', $pattern);
+                    $pattern = str_replace('[\d]', '(\d)', $pattern);
                     if (preg_match('/^' . $pattern . '$/i', $user_agent, $matches)) {
                         // Insert the digits back into the pattern, so that we can search the settings for it
                         if (count($matches) > 1) {
                             array_shift($matches);
                             foreach ($matches as $one_match) {
-                                $num_pos = strpos($pattern, '(\d+)');
-                                $pattern = substr_replace($pattern, $one_match, $num_pos, 5);
+                                $num_pos = strpos($pattern, '(\d)');
+                                $pattern = substr_replace($pattern, $one_match, $num_pos, 4);
                             }
                         }
 
@@ -384,7 +384,7 @@ extends AbstractParser
                 // so that very similar patterns (e.g. only with different browser version numbers) can be compressed.
                 // This helps to speed up the first (and most expensive) part of the pattern search a lot.
                 if (strpbrk($match, '0123456789') !== false) {
-                    $compressedPattern = preg_replace('/\d+/', '[\d]+', $match);
+                    $compressedPattern = preg_replace('/\d/', '[\d]', $match);
                     if (!in_array($compressedPattern, $data[$tmp_start][$tmp_length])) {
                         $data[$tmp_start][$tmp_length][] = $compressedPattern;
                     }
